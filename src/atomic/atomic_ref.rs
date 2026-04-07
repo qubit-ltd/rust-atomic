@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
@@ -62,7 +62,7 @@ use crate::atomic::traits::Atomic;
 /// # Example
 ///
 /// ```rust
-/// use prism3_rust_concurrent::atomic::AtomicRef;
+/// use qubit_atomic::AtomicRef;
 /// use std::sync::Arc;
 ///
 /// #[derive(Debug, Clone)]
@@ -106,7 +106,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let data = Arc::new(42);
@@ -136,7 +136,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(42));
@@ -169,7 +169,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(42));
@@ -207,7 +207,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(10));
@@ -251,7 +251,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(10));
@@ -300,7 +300,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(10));
@@ -361,7 +361,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(10));
@@ -411,7 +411,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(10));
@@ -469,7 +469,7 @@ impl<T> AtomicRef<T> {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicRef;
+    /// use qubit_atomic::AtomicRef;
     /// use std::sync::Arc;
     ///
     /// let atomic = AtomicRef::new(Arc::new(10));

@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
@@ -68,7 +68,7 @@ use crate::atomic::traits::AtomicNumber;
 /// # Example
 ///
 /// ```rust
-/// use prism3_rust_concurrent::atomic::AtomicF32;
+/// use qubit_atomic::AtomicF32;
 /// use std::sync::Arc;
 /// use std::thread;
 ///
@@ -112,7 +112,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(3.14);
     /// assert_eq!(atomic.load(), 3.14);
@@ -139,7 +139,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(3.14);
     /// assert_eq!(atomic.load(), 3.14);
@@ -164,7 +164,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(0.0);
     /// atomic.store(3.14);
@@ -193,7 +193,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(1.0);
     /// let old = atomic.swap(2.0);
@@ -235,7 +235,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(1.0);
     /// assert!(atomic.compare_set(1.0, 2.0).is_ok());
@@ -273,7 +273,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(1.0);
     /// let mut current = atomic.load();
@@ -318,7 +318,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(1.0);
     /// let prev = atomic.compare_and_exchange(1.0, 2.0);
@@ -357,7 +357,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(1.0);
     /// let mut current = atomic.load();
@@ -407,7 +407,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(10.0);
     /// let old = atomic.fetch_add(5.5);
@@ -445,7 +445,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(10.0);
     /// let old = atomic.fetch_sub(3.5);
@@ -483,7 +483,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(10.0);
     /// let old = atomic.fetch_mul(2.5);
@@ -521,7 +521,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(10.0);
     /// let old = atomic.fetch_div(2.0);
@@ -560,7 +560,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     ///
     /// let atomic = AtomicF32::new(10.0);
     /// let old = atomic.fetch_update(|x| x * 2.0);
@@ -601,7 +601,7 @@ impl AtomicF32 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF32;
+    /// use qubit_atomic::AtomicF32;
     /// use std::sync::atomic::Ordering;
     ///
     /// let atomic = AtomicF32::new(0.0);

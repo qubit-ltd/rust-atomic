@@ -1,8 +1,8 @@
-# Prism3 Atomic
+# Qubit Atomic
 
-[![CircleCI](https://circleci.com/gh/3-prism/prism3-rust-atomic.svg?style=shield)](https://circleci.com/gh/3-prism/prism3-rust-atomic)
-[![Coverage Status](https://coveralls.io/repos/github/3-prism/prism3-rust-atomic/badge.svg?branch=main)](https://coveralls.io/github/3-prism/prism3-rust-atomic?branch=main)
-[![Crates.io](https://img.shields.io/crates/v/prism3-atomic.svg?color=blue)](https://crates.io/crates/prism3-atomic)
+[![CircleCI](https://circleci.com/gh/qubit-ltd/rust-atomic.svg?style=shield)](https://circleci.com/gh/qubit-ltd/rust-atomic)
+[![Coverage Status](https://coveralls.io/repos/github/qubit-ltd/rust-atomic/badge.svg?branch=main)](https://coveralls.io/github/qubit-ltd/rust-atomic?branch=main)
+[![Crates.io](https://img.shields.io/crates/v/qubit-atomic.svg?color=blue)](https://crates.io/crates/qubit-atomic)
 [![Rust](https://img.shields.io/badge/rust-1.70+-blue.svg?logo=rust)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![English Document](https://img.shields.io/badge/Document-English-blue.svg)](README.md)
@@ -11,7 +11,7 @@
 
 ## 概述
 
-Prism3 Atomic 是一个全面的原子操作库，提供易于使用的原子类型和合理的默认内存序，类似于 Java 的 `java.util.concurrent.atomic` 包。它隐藏了内存序的复杂性，同时保持零成本抽象，并允许高级用户访问底层类型以进行细粒度控制。
+Qubit Atomic 是一个全面的原子操作库，提供易于使用的原子类型和合理的默认内存序，类似于 Java 的 `java.util.concurrent.atomic` 包。它隐藏了内存序的复杂性，同时保持零成本抽象，并允许高级用户访问底层类型以进行细粒度控制。
 
 ## 设计目标
 
@@ -55,7 +55,7 @@ Prism3 Atomic 是一个全面的原子操作库，提供易于使用的原子类
 
 ```toml
 [dependencies]
-prism3-atomic = "0.1.0"
+qubit-atomic = "0.3.0"
 ```
 
 ## 快速开始
@@ -63,7 +63,7 @@ prism3-atomic = "0.1.0"
 ### 基础计数器
 
 ```rust
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 use std::sync::Arc;
 use std::thread;
 
@@ -96,7 +96,7 @@ fn main() {
 ### CAS 循环
 
 ```rust
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 fn increment_even_only(atomic: &AtomicI32) -> Result<i32, &'static str> {
     let mut current = atomic.load();
@@ -127,7 +127,7 @@ fn main() {
 ### 函数式更新
 
 ```rust
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 fn main() {
     let atomic = AtomicI32::new(10);
@@ -156,7 +156,7 @@ fn main() {
 ### 原子引用
 
 ```rust
-use prism3_atomic::AtomicRef;
+use qubit_atomic::AtomicRef;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -199,7 +199,7 @@ fn main() {
 ### 布尔标志
 
 ```rust
-use prism3_atomic::AtomicBool;
+use qubit_atomic::AtomicBool;
 use std::sync::Arc;
 
 struct Service {
@@ -254,7 +254,7 @@ fn main() {
 ### 浮点数原子操作
 
 ```rust
-use prism3_atomic::AtomicF32;
+use qubit_atomic::AtomicF32;
 use std::sync::Arc;
 use std::thread;
 
@@ -361,7 +361,7 @@ fn main() {
 
 ```rust
 use std::sync::atomic::Ordering;
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 let atomic = AtomicI32::new(0);
 
@@ -375,7 +375,7 @@ atomic.inner().store(42, Ordering::Release);
 
 ## 与 JDK 对比
 
-| 特性 | JDK | Prism3 Atomic | 说明 |
+| 特性 | JDK | Qubit Atomic | 说明 |
 |-----|-----|---------------|------|
 | **基础类型** | 3 种类型 | 13 种类型 | Rust 支持更多整数类型 |
 | **内存序** | 隐式（volatile 语义） | 默认 + `inner()` 可选 | Rust 更灵活 |
@@ -443,7 +443,7 @@ cargo test
 
 ## 许可证
 
-Copyright (c) 2025 3-Prism Co. Ltd. All rights reserved.
+Copyright (c) 2025 - 2026. Haixing Hu, Qubit Co. Ltd. All rights reserved.
 
 根据 Apache 许可证 2.0 版（"许可证"）授权；
 除非遵守许可证，否则您不得使用此文件。
@@ -470,15 +470,13 @@ Copyright (c) 2025 3-Prism Co. Ltd. All rights reserved.
 
 ## 作者
 
-**胡海星** - *棱芯科技有限公司*
+**胡海星** - *Qubit Co. Ltd.*
 
 ## 相关项目
 
-- [prism3-rust-core](https://github.com/3-prism/prism3-rust-core) - 核心工具和数据类型
-- [prism3-rust-concurrent](https://github.com/3-prism/prism3-rust-concurrent) - 并发工具
-- [prism3-rust-function](https://github.com/3-prism/prism3-rust-function) - 函数式编程工具
+Qubit 旗下的更多 Rust 库发布在 GitHub 组织 [qubit-ltd](https://github.com/qubit-ltd)。
 
 ---
 
-有关 Prism3 生态系统的更多信息，请访问我们的 [GitHub 主页](https://github.com/3-prism)。
+仓库地址：[https://github.com/qubit-ltd/rust-atomic](https://github.com/qubit-ltd/rust-atomic)
 

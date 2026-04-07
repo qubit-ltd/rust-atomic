@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
@@ -68,7 +68,7 @@ use crate::atomic::traits::AtomicNumber;
 /// # Example
 ///
 /// ```rust
-/// use prism3_rust_concurrent::atomic::AtomicF64;
+/// use qubit_atomic::AtomicF64;
 ///
 /// let atomic = AtomicF64::new(3.14159);
 /// atomic.add(1.0);
@@ -93,7 +93,7 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF64;
+    /// use qubit_atomic::AtomicF64;
     ///
     /// let atomic = AtomicF64::new(3.14159);
     /// assert_eq!(atomic.load(), 3.14159);
@@ -299,7 +299,7 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF64;
+    /// use qubit_atomic::AtomicF64;
     ///
     /// let atomic = AtomicF64::new(10.0);
     /// let old = atomic.fetch_add(5.5);
@@ -337,7 +337,7 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF64;
+    /// use qubit_atomic::AtomicF64;
     ///
     /// let atomic = AtomicF64::new(10.0);
     /// let old = atomic.fetch_sub(3.5);
@@ -375,7 +375,7 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF64;
+    /// use qubit_atomic::AtomicF64;
     ///
     /// let atomic = AtomicF64::new(10.0);
     /// let old = atomic.fetch_mul(2.5);
@@ -413,7 +413,7 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicF64;
+    /// use qubit_atomic::AtomicF64;
     ///
     /// let atomic = AtomicF64::new(10.0);
     /// let old = atomic.fetch_div(2.0);

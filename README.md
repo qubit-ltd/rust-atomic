@@ -1,8 +1,8 @@
-# Prism3 Atomic
+# Qubit Atomic
 
-[![CircleCI](https://circleci.com/gh/3-prism/prism3-rust-atomic.svg?style=shield)](https://circleci.com/gh/3-prism/prism3-rust-atomic)
-[![Coverage Status](https://coveralls.io/repos/github/3-prism/prism3-rust-atomic/badge.svg?branch=main)](https://coveralls.io/github/3-prism/prism3-rust-atomic?branch=main)
-[![Crates.io](https://img.shields.io/crates/v/prism3-atomic.svg?color=blue)](https://crates.io/crates/prism3-atomic)
+[![CircleCI](https://circleci.com/gh/qubit-ltd/rust-atomic.svg?style=shield)](https://circleci.com/gh/qubit-ltd/rust-atomic)
+[![Coverage Status](https://coveralls.io/repos/github/qubit-ltd/rust-atomic/badge.svg?branch=main)](https://coveralls.io/github/qubit-ltd/rust-atomic?branch=main)
+[![Crates.io](https://img.shields.io/crates/v/qubit-atomic.svg?color=blue)](https://crates.io/crates/qubit-atomic)
 [![Rust](https://img.shields.io/badge/rust-1.70+-blue.svg?logo=rust)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![中文文档](https://img.shields.io/badge/文档-中文版-blue.svg)](README.zh_CN.md)
@@ -11,7 +11,7 @@ User-friendly atomic operations wrapper providing JDK-like atomic API for Rust.
 
 ## Overview
 
-Prism3 Atomic is a comprehensive atomic operations library that provides easy-to-use atomic types with reasonable default memory orderings, similar to Java's `java.util.concurrent.atomic` package. It hides the complexity of memory ordering while maintaining zero-cost abstraction and allowing advanced users to access underlying types for fine-grained control.
+Qubit Atomic is a comprehensive atomic operations library that provides easy-to-use atomic types with reasonable default memory orderings, similar to Java's `java.util.concurrent.atomic` package. It hides the complexity of memory ordering while maintaining zero-cost abstraction and allowing advanced users to access underlying types for fine-grained control.
 
 ## Design Goals
 
@@ -55,7 +55,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-prism3-atomic = "0.1.0"
+qubit-atomic = "0.3.0"
 ```
 
 ## Quick Start
@@ -63,7 +63,7 @@ prism3-atomic = "0.1.0"
 ### Basic Counter
 
 ```rust
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 use std::sync::Arc;
 use std::thread;
 
@@ -96,7 +96,7 @@ fn main() {
 ### CAS Loop
 
 ```rust
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 fn increment_even_only(atomic: &AtomicI32) -> Result<i32, &'static str> {
     let mut current = atomic.load();
@@ -127,7 +127,7 @@ fn main() {
 ### Functional Updates
 
 ```rust
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 fn main() {
     let atomic = AtomicI32::new(10);
@@ -156,7 +156,7 @@ fn main() {
 ### Atomic Reference
 
 ```rust
-use prism3_atomic::AtomicRef;
+use qubit_atomic::AtomicRef;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -199,7 +199,7 @@ fn main() {
 ### Boolean Flag
 
 ```rust
-use prism3_atomic::AtomicBool;
+use qubit_atomic::AtomicBool;
 use std::sync::Arc;
 
 struct Service {
@@ -254,7 +254,7 @@ fn main() {
 ### Floating-Point Atomics
 
 ```rust
-use prism3_atomic::AtomicF32;
+use qubit_atomic::AtomicF32;
 use std::sync::Arc;
 use std::thread;
 
@@ -361,7 +361,7 @@ For scenarios requiring fine-grained memory ordering control (approximately 1% o
 
 ```rust
 use std::sync::atomic::Ordering;
-use prism3_atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 let atomic = AtomicI32::new(0);
 
@@ -375,7 +375,7 @@ atomic.inner().store(42, Ordering::Release);
 
 ## Comparison with JDK
 
-| Feature | JDK | Prism3 Atomic | Notes |
+| Feature | JDK | Qubit Atomic | Notes |
 |---------|-----|---------------|-------|
 | **Basic Types** | 3 types | 13 types | Rust supports more integer types |
 | **Memory Ordering** | Implicit (volatile) | Default + `inner()` optional | Rust more flexible |
@@ -443,7 +443,7 @@ This crate has **zero dependencies** for the core functionality, relying only on
 
 ## License
 
-Copyright (c) 2025 3-Prism Co. Ltd. All rights reserved.
+Copyright (c) 2025 - 2026. Haixing Hu, Qubit Co. Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -472,15 +472,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Author
 
-**Haixing Hu** - *3-Prism Co. Ltd.*
+**Haixing Hu** - *Qubit Co. Ltd.*
 
 ## Related Projects
 
-- [prism3-rust-core](https://github.com/3-prism/prism3-rust-core) - Core utilities and data types
-- [prism3-rust-concurrent](https://github.com/3-prism/prism3-rust-concurrent) - Concurrency utilities
-- [prism3-rust-function](https://github.com/3-prism/prism3-rust-function) - Functional programming utilities
+More Rust libraries from Qubit are published under the [qubit-ltd](https://github.com/qubit-ltd) organization on GitHub.
 
 ---
 
-For more information about the Prism3 ecosystem, visit our [GitHub homepage](https://github.com/3-prism).
+Repository: [https://github.com/qubit-ltd/rust-atomic](https://github.com/qubit-ltd/rust-atomic)
 

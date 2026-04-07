@@ -801,7 +801,7 @@ atomic.inner().store(42, Ordering::Release);
 use std::sync::atomic::AtomicI32 as StdAtomicI32;
 
 // Our wrapper type
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 ```
 
 ### 3.2 Core Structure
@@ -1366,7 +1366,7 @@ The following table shows the underlying `std::sync::atomic` functions used by `
 **1. NaN Value Handling**
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicF32;
+use qubit_atomic::AtomicF32;
 
 let atomic = AtomicF32::new(f32::NAN);
 
@@ -1495,7 +1495,7 @@ pub trait AtomicNumber: Atomic {
 ### 6.1 Basic Counter
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 use std::sync::Arc;
 use std::thread;
 
@@ -1528,7 +1528,7 @@ fn main() {
 ### 6.2 CAS Loop
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 fn increment_even_only(atomic: &AtomicI32) -> Result<i32, &'static str> {
     let mut current = atomic.load();
@@ -1561,7 +1561,7 @@ fn main() {
 ### 6.3 Functional Update
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 fn main() {
     let atomic = AtomicI32::new(10);
@@ -1588,7 +1588,7 @@ fn main() {
 ### 6.4 Atomic Reference
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicRef;
+use qubit_atomic::AtomicRef;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -1630,7 +1630,7 @@ fn main() {
 ### 6.5 Boolean Flag
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicBool;
+use qubit_atomic::AtomicBool;
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
@@ -1687,7 +1687,7 @@ fn main() {
 ### 6.6 Floating-Point Atomic Operations
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicF32;
+use qubit_atomic::AtomicF32;
 use std::sync::Arc;
 use std::thread;
 
@@ -1739,7 +1739,7 @@ fn float_custom_update_example() {
 
 /// Example: Performance comparison - Integer vs Floating-point
 fn performance_comparison() {
-    use prism3_rust_concurrent::atomic::AtomicI32;
+    use qubit_atomic::AtomicI32;
     use std::time::Instant;
 
     let iterations = 100_000;
@@ -1790,7 +1790,7 @@ fn main() {
 ### 6.7 Generic Code Using Traits
 
 ```rust
-use prism3_rust_concurrent::atomic::{Atomic, AtomicNumber, AtomicI32, AtomicI64};
+use qubit_atomic::{Atomic, AtomicNumber, AtomicI32, AtomicI64};
 
 /// Generic atomic counter
 fn increment_atomic<T>(atomic: &T) -> T::Value
@@ -1813,7 +1813,7 @@ fn main() {
 ### 6.8 High-Performance Scenarios: Direct Access to Underlying Types
 
 ```rust
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 use std::sync::atomic::Ordering;
 
 fn high_performance_counter() {
@@ -2526,7 +2526,7 @@ atomic.fetch_inc();
 ```rust
 use std::sync::atomic::AtomicI32 as StdAtomicI32;
 use std::sync::atomic::Ordering;
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 impl From<StdAtomicI32> for AtomicI32 {
     fn from(std_atomic: StdAtomicI32) -> Self {
@@ -2574,7 +2574,7 @@ Maintain compatibility with `crossbeam-utils`'s `AtomicCell`:
 ```rust
 // Can convert between them as needed
 use crossbeam_utils::atomic::AtomicCell;
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 let atomic = AtomicI32::new(42);
 let cell = AtomicCell::new(atomic.load());
@@ -2586,7 +2586,7 @@ If needed, can provide integration with `parking_lot`:
 
 ```rust
 use parking_lot::Mutex;
-use prism3_rust_concurrent::atomic::AtomicBool;
+use qubit_atomic::AtomicBool;
 
 struct Resource {
     data: Mutex<Vec<u8>>,
@@ -2621,7 +2621,7 @@ Follow the project's Rust documentation comment standards:
 /// # Basic Example
 ///
 /// ```rust
-/// use prism3_rust_concurrent::atomic::AtomicI32;
+/// use qubit_atomic::AtomicI32;
 /// use std::sync::Arc;
 /// use std::thread;
 ///
@@ -2648,7 +2648,7 @@ Follow the project's Rust documentation comment standards:
 /// # Advanced Usage: Direct Access to Underlying Type
 ///
 /// ```rust
-/// use prism3_rust_concurrent::atomic::AtomicI32;
+/// use qubit_atomic::AtomicI32;
 /// use std::sync::atomic::Ordering;
 ///
 /// let atomic = AtomicI32::new(0);
@@ -2683,7 +2683,7 @@ atomic.store(42, Ordering::Release);
 let old = atomic.fetch_add(1, Ordering::Relaxed);
 
 // After migration: Using wrapper (most cases)
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 let atomic = AtomicI32::new(0);
 let value = atomic.load();                // Automatic Acquire
@@ -2733,7 +2733,7 @@ int current = counter.incrementAndGet();
 boolean success = counter.compareAndSet(10, 20);
 
 // Rust equivalent code
-use prism3_rust_concurrent::atomic::AtomicI32;
+use qubit_atomic::AtomicI32;
 
 let counter = AtomicI32::new(0);
 let old = counter.fetch_inc();

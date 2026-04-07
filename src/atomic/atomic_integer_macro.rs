@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
@@ -70,7 +70,7 @@ macro_rules! impl_atomic_number {
         /// # Example
         ///
         /// ```rust
-        #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+        #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
         /// use std::sync::Arc;
         /// use std::thread;
         ///
@@ -112,7 +112,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(42);")]
             /// assert_eq!(atomic.load(), 42);
@@ -144,7 +144,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(42);")]
             /// assert_eq!(atomic.load(), 42);
@@ -174,7 +174,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(0);")]
             /// atomic.store(42);
@@ -210,7 +210,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.swap(20);
@@ -251,7 +251,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// assert!(atomic.compare_set(10, 20).is_ok());
@@ -293,7 +293,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let mut current = atomic.load();
@@ -343,7 +343,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let prev = atomic.compare_and_exchange(10, 20);
@@ -387,7 +387,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let mut current = atomic.load();
@@ -441,7 +441,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.fetch_inc();
@@ -464,7 +464,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.fetch_dec();
@@ -496,7 +496,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.fetch_add(5);
@@ -523,7 +523,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.fetch_sub(3);
@@ -550,7 +550,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.fetch_mul(3);
@@ -588,7 +588,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(30);")]
             /// let old = atomic.fetch_div(3);
@@ -636,7 +636,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(0b1111);")]
             /// let old = atomic.fetch_and(0b1100);
@@ -663,7 +663,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(0b1100);")]
             /// let old = atomic.fetch_or(0b0011);
@@ -690,7 +690,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(0b1100);")]
             /// let old = atomic.fetch_xor(0b0110);
@@ -714,7 +714,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(0b1010_0101);")]
             /// let old = atomic.fetch_not();
@@ -749,7 +749,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.fetch_update(|x| x * 2);
@@ -789,7 +789,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// let old = atomic.fetch_accumulate(5, |a, b| a + b);
@@ -843,7 +843,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// atomic.fetch_max(20);
@@ -873,7 +873,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
             /// atomic.fetch_min(5);
@@ -901,7 +901,7 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use prism3_rust_concurrent::atomic::", stringify!($name), ";")]
+            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
             /// use std::sync::atomic::Ordering;
             ///
             #[doc = concat!("let atomic = ", stringify!($name), "::new(0);")]

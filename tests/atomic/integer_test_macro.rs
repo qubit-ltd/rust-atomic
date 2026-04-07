@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
@@ -12,7 +12,7 @@
 macro_rules! test_atomic_integer {
     ($atomic_type:ident, $value_type:ty, $test_mod:ident) => {
         mod $test_mod {
-            use prism3_atomic::atomic::{
+            use qubit_atomic::atomic::{
                 $atomic_type,
                 Atomic,
                 AtomicNumber,

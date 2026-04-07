@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
@@ -59,7 +59,7 @@ use crate::atomic::traits::Atomic;
 /// # Example
 ///
 /// ```rust
-/// use prism3_rust_concurrent::atomic::AtomicBool;
+/// use qubit_atomic::AtomicBool;
 /// use std::sync::Arc;
 /// use std::thread;
 ///
@@ -92,7 +92,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// assert_eq!(flag.load(), false);
@@ -124,7 +124,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(true);
     /// assert_eq!(flag.load(), true);
@@ -153,7 +153,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// flag.store(true);
@@ -187,7 +187,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// let old = flag.swap(true);
@@ -227,7 +227,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// assert!(flag.compare_set(false, true).is_ok());
@@ -262,7 +262,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// let mut current = flag.load();
@@ -301,7 +301,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// let prev = flag.compare_and_exchange(false, true);
@@ -338,7 +338,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// let mut current = flag.load();
@@ -377,7 +377,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// let old = flag.fetch_set();
@@ -404,7 +404,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(true);
     /// let old = flag.fetch_clear();
@@ -430,7 +430,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// assert_eq!(flag.fetch_not(), false);
@@ -462,7 +462,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(true);
     /// assert_eq!(flag.fetch_and(false), true);
@@ -492,7 +492,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// assert_eq!(flag.fetch_or(true), false);
@@ -522,7 +522,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// assert_eq!(flag.fetch_xor(true), false);
@@ -549,7 +549,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(false);
     /// assert!(flag.set_if_false(true).is_ok());
@@ -579,7 +579,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     ///
     /// let flag = AtomicBool::new(true);
     /// assert!(flag.set_if_true(false).is_ok());
@@ -612,7 +612,7 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use prism3_rust_concurrent::atomic::AtomicBool;
+    /// use qubit_atomic::AtomicBool;
     /// use std::sync::atomic::Ordering;
     ///
     /// let flag = AtomicBool::new(false);

@@ -117,14 +117,14 @@ jobs:
 
       - name: Generate coverage
         run: |
-          cd prism3-rust-concurrent
+          cd rust-atomic
           cargo llvm-cov --lcov --output-path lcov.info
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: prism3-rust-concurrent/lcov.info
-          flags: prism3-rust-concurrent
+          files: rust-atomic/lcov.info
+          flags: rust-atomic
 ```
 
 ## 常见问题

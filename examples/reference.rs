@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
@@ -10,7 +10,7 @@
 //!
 //! Demonstrates using atomic references for lock-free data structures.
 
-use prism3_atomic::AtomicRef;
+use qubit_atomic::AtomicRef;
 use std::sync::Arc;
 use std::thread;
 

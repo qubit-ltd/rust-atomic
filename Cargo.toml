@@ -1,16 +1,16 @@
 [package]
-name = "prism3-atomic"
-version = "0.2.0"
+name = "qubit-atomic"
+version = "0.3.0"
 edition = "2021"
 rust-version = "1.70"
 authors = ["Haixing Hu <starfish.hu@gmail.com>"]
 license = "Apache-2.0"
-repository = "https://github.com/3-prism/rust-common"
+repository = "https://github.com/qubit-ltd/rust-atomic"
 description = "User-friendly atomic operations wrapper providing JDK-like atomic API"
-homepage = "https://github.com/3-prism/rust-common"
-documentation = "https://docs.rs/prism3-rust-atomic"
+homepage = "https://github.com/qubit-ltd/rust-atomic"
+documentation = "https://docs.rs/qubit-atomic"
 readme = "README.md"
-keywords = ["atomic", "concurrent", "lock-free", "thread-safe", "prism3"]
+keywords = ["atomic", "concurrent", "lock-free", "thread-safe", "qubit"]
 categories = ["concurrency", "data-structures"]
 exclude = [
     "coverage.sh",
@@ -23,7 +23,7 @@ exclude = [
 ]
 
 [lib]
-name = "prism3_atomic"
+name = "qubit_atomic"
 doctest = false
 
 [dependencies]
@@ -48,4 +48,3 @@ codegen-units = 1
 opt-level = 3
 lto = true
 codegen-units = 1
-

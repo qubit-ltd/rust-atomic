@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "prism3-atomic"
-version = "0.2.0"
+name = "qubit-atomic"
+version = "0.3.0"

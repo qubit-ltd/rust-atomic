@@ -1,12 +1,12 @@
 /*******************************************************************************
  *
- *    Copyright (c) 2025.
- *    3-Prism Co. Ltd.
+ *    Copyright (c) 2025 - 2026.
+ *    Haixing Hu, Qubit Co. Ltd.
  *
  *    All rights reserved.
  *
  ******************************************************************************/
-//! # prism3-rust-atomic
+//! # qubit-atomic
 //!
 //! User-friendly atomic operations wrapper providing JDK-like atomic API.
 //!
@@ -33,7 +33,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use prism3_atomic::{AtomicI32, Atomic, AtomicNumber};
+//! use qubit_atomic::{AtomicI32, Atomic, AtomicNumber};
 //! use std::sync::Arc;
 //! use std::thread;
 //!
