@@ -1,5 +1,13 @@
 #!/bin/bash
 
+################################################################################
+#
+#    Copyright (c) 2026.
+#    Haixing Hu, Qubit Co. Ltd.
+#
+#    All rights reserved.
+#
+################################################################################
 # Format script using nightly rustfmt
 # This script uses nightly rustfmt for advanced formatting features
 
