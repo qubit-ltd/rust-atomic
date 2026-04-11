@@ -117,14 +117,14 @@ jobs:
 
       - name: Generate coverage
         run: |
-          cd rust-atomic
+          cd rs-atomic
           cargo llvm-cov --lcov --output-path lcov.info
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: rust-atomic/lcov.info
-          flags: rust-atomic
+          files: rs-atomic/lcov.info
+          flags: rs-atomic
 ```
 
 ## 常见问题

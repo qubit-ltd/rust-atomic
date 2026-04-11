@@ -1,7 +1,7 @@
 # Qubit Atomic
 
-[![CircleCI](https://circleci.com/gh/qubit-ltd/rust-atomic.svg?style=shield)](https://circleci.com/gh/qubit-ltd/rust-atomic)
-[![Coverage Status](https://coveralls.io/repos/github/qubit-ltd/rust-atomic/badge.svg?branch=main)](https://coveralls.io/github/qubit-ltd/rust-atomic?branch=main)
+[![CircleCI](https://circleci.com/gh/qubit-ltd/rs-atomic.svg?style=shield)](https://circleci.com/gh/qubit-ltd/rs-atomic)
+[![Coverage Status](https://coveralls.io/repos/github/qubit-ltd/rs-atomic/badge.svg?branch=main)](https://coveralls.io/github/qubit-ltd/rs-atomic?branch=main)
 [![Crates.io](https://img.shields.io/crates/v/qubit-atomic.svg?color=blue)](https://crates.io/crates/qubit-atomic)
 [![Rust](https://img.shields.io/badge/rust-1.70+-blue.svg?logo=rust)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
@@ -480,4 +480,4 @@ More Rust libraries from Qubit are published under the [qubit-ltd](https://githu
 
 ---
 
-Repository: [https://github.com/qubit-ltd/rust-atomic](https://github.com/qubit-ltd/rust-atomic)
+Repository: [https://github.com/qubit-ltd/rs-atomic](https://github.com/qubit-ltd/rs-atomic)
