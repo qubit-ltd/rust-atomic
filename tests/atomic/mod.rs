@@ -25,4 +25,5 @@ mod atomic_u64_tests;
 mod atomic_u8_tests;
 mod atomic_usize_tests;
 mod concurrent_tests;
+mod loom_model_tests;
 mod trait_tests;

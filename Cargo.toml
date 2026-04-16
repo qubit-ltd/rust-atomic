@@ -29,8 +29,8 @@ name = "qubit_atomic"
 arc-swap = "1"
 
 [dev-dependencies]
-# For concurrent testing
-# loom = "0.7"
+# For concurrent model checking
+loom = "0.7"
 
 # For performance benchmarking
 # criterion = "0.5"
