@@ -405,18 +405,12 @@ impl<T> Atomic for AtomicRef<T> {
 
     #[inline]
     fn compare_exchange(&self, current: Arc<T>, new: Arc<T>) -> Arc<T> {
-        match self.compare_set(&current, new.clone()) {
-            Ok(_) => current,
-            Err(_) => self.load(),
-        }
+        self.compare_and_exchange(&current, new)
     }
 
     #[inline]
     fn compare_exchange_weak(&self, current: Arc<T>, new: Arc<T>) -> Arc<T> {
-        match self.compare_set_weak(&current, new.clone()) {
-            Ok(_) => current,
-            Err(_) => self.load(),
-        }
+        self.compare_and_exchange_weak(&current, new)
     }
 
     #[inline]
