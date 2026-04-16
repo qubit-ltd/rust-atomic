@@ -12,12 +12,27 @@ use qubit_atomic::atomic::{
     AtomicRef,
 };
 use std::sync::Arc;
+use std::sync::atomic::{
+    AtomicUsize,
+    Ordering,
+};
 use std::thread;
 
 #[derive(Debug, Clone, PartialEq)]
 struct TestData {
     value: i32,
     name: String,
+}
+
+#[derive(Debug)]
+struct DropTracked {
+    drops: Arc<AtomicUsize>,
+}
+
+impl Drop for DropTracked {
+    fn drop(&mut self) {
+        self.drops.fetch_add(1, Ordering::Relaxed);
+    }
 }
 
 #[test]
@@ -343,6 +358,50 @@ fn test_arc_reference_counting() {
     drop(atomic);
     // Ref count: 1 (original only)
     assert_eq!(Arc::strong_count(&data), 1);
+}
+
+#[test]
+fn test_compare_set_success_no_arc_leak() {
+    let drops = Arc::new(AtomicUsize::new(0));
+    let initial = Arc::new(DropTracked {
+        drops: drops.clone(),
+    });
+    let atomic = AtomicRef::new(initial.clone());
+
+    const ITERATIONS: usize = 100;
+    for _ in 0..ITERATIONS {
+        let current = atomic.load();
+        let new_value = Arc::new(DropTracked {
+            drops: drops.clone(),
+        });
+        assert!(atomic.compare_set(&current, new_value).is_ok());
+    }
+
+    drop(atomic);
+    drop(initial);
+    assert_eq!(drops.load(Ordering::Relaxed), ITERATIONS + 1);
+}
+
+#[test]
+fn test_compare_set_weak_success_no_arc_leak() {
+    let drops = Arc::new(AtomicUsize::new(0));
+    let initial = Arc::new(DropTracked {
+        drops: drops.clone(),
+    });
+    let atomic = AtomicRef::new(initial.clone());
+
+    const ITERATIONS: usize = 100;
+    for _ in 0..ITERATIONS {
+        let current = atomic.load();
+        let new_value = Arc::new(DropTracked {
+            drops: drops.clone(),
+        });
+        assert!(atomic.compare_set_weak(&current, new_value).is_ok());
+    }
+
+    drop(atomic);
+    drop(initial);
+    assert_eq!(drops.load(Ordering::Relaxed), ITERATIONS + 1);
 }
 
 #[test]
