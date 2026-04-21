@@ -7,9 +7,18 @@
  *
  ******************************************************************************/
 
-use qubit_atomic::{Atomic, AtomicRef};
-use std::sync::atomic::{AtomicUsize as StdAtomicUsize, Ordering};
-use std::sync::{Arc, Barrier};
+use qubit_atomic::{
+    Atomic,
+    AtomicRef,
+};
+use std::sync::atomic::{
+    AtomicUsize as StdAtomicUsize,
+    Ordering,
+};
+use std::sync::{
+    Arc,
+    Barrier,
+};
 use std::thread;
 use std::time::Duration;
 

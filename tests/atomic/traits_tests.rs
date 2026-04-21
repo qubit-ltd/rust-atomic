@@ -7,7 +7,10 @@
  *
  ******************************************************************************/
 
-use qubit_atomic::{Atomic, AtomicRef};
+use qubit_atomic::{
+    Atomic,
+    AtomicRef,
+};
 use std::sync::Arc;
 
 // Test that supported atomic values expose the common primitive API correctly.

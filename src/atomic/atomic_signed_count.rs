@@ -17,7 +17,10 @@
 //! Haixing Hu
 
 use std::fmt;
-use std::sync::atomic::{AtomicIsize as StdAtomicIsize, Ordering};
+use std::sync::atomic::{
+    AtomicIsize as StdAtomicIsize,
+    Ordering,
+};
 
 /// A signed atomic counter with synchronization-oriented operations.
 ///

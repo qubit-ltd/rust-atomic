@@ -74,4 +74,9 @@
 pub mod atomic;
 
 // Re-export the public atomic API.
-pub use atomic::{Atomic, AtomicCount, AtomicRef, AtomicSignedCount};
+pub use atomic::{
+    Atomic,
+    AtomicCount,
+    AtomicRef,
+    AtomicSignedCount,
+};
