@@ -44,6 +44,17 @@ fn test_new() {
 }
 
 #[test]
+fn test_from_value() {
+    let atomic = AtomicRef::from_value(TestData {
+        value: 42,
+        name: "test".to_string(),
+    });
+
+    assert_eq!(atomic.load().value, 42);
+    assert_eq!(atomic.load().name, "test");
+}
+
+#[test]
 fn test_get_set() {
     let data1 = Arc::new(TestData {
         value: 42,

@@ -104,6 +104,33 @@ impl<T> AtomicRef<T> {
         }
     }
 
+    /// Creates a new atomic reference from an owned value.
+    ///
+    /// This is a convenience constructor for callers that do not already have
+    /// an [`Arc<T>`]. It wraps `value` in [`Arc::new`] and then delegates to
+    /// [`new`](Self::new).
+    ///
+    /// # Parameters
+    ///
+    /// * `value` - The owned value to store as the initial reference.
+    ///
+    /// # Returns
+    ///
+    /// An atomic reference initialized to `Arc::new(value)`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use qubit_atomic::AtomicRef;
+    ///
+    /// let atomic = AtomicRef::from_value(42);
+    /// assert_eq!(*atomic.load(), 42);
+    /// ```
+    #[inline]
+    pub fn from_value(value: T) -> Self {
+        Self::new(Arc::new(value))
+    }
+
     /// Gets the current reference.
     ///
     /// # Returns
