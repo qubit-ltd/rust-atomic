@@ -12,6 +12,10 @@
 #[macro_use]
 mod macros;
 
+mod arc_atomic;
+mod arc_atomic_count;
+mod arc_atomic_ref;
+mod arc_atomic_signed_count;
 #[allow(clippy::module_inception)]
 mod atomic;
 mod atomic_bool;
@@ -38,6 +42,10 @@ mod atomic_usize;
 mod atomic_value;
 mod sealed;
 
+pub use arc_atomic::ArcAtomic;
+pub use arc_atomic_count::ArcAtomicCount;
+pub use arc_atomic_ref::ArcAtomicRef;
+pub use arc_atomic_signed_count::ArcAtomicSignedCount;
 pub use atomic::Atomic;
 pub use atomic_count::AtomicCount;
 pub use atomic_ref::AtomicRef;

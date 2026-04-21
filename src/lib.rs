@@ -29,6 +29,8 @@
 //!   primitive types
 //! - Counter atomic types: `AtomicCount`, `AtomicSignedCount`
 //! - Reference atomic type: `AtomicRef<T>`
+//! - Shared-owner wrappers: `ArcAtomic<T>`, `ArcAtomicRef<T>`,
+//!   `ArcAtomicCount`, and `ArcAtomicSignedCount`
 //!
 //! ## Example
 //!
@@ -75,6 +77,10 @@ pub mod atomic;
 
 // Re-export the public atomic API.
 pub use atomic::{
+    ArcAtomic,
+    ArcAtomicCount,
+    ArcAtomicRef,
+    ArcAtomicSignedCount,
     Atomic,
     AtomicCount,
     AtomicRef,
