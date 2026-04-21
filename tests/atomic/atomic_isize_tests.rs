@@ -7,4 +7,4 @@
  *
  ******************************************************************************/
 
-test_atomic_integer!(AtomicIsize, isize, atomic_isize_tests);
+test_atomic_integer!(isize, atomic_isize_tests);

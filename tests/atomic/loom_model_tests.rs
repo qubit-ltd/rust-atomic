@@ -8,11 +8,7 @@
  ******************************************************************************/
 
 use loom::sync::Arc;
-use loom::sync::atomic::{
-    AtomicBool,
-    AtomicUsize,
-    Ordering,
-};
+use loom::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use loom::thread;
 
 /// Performs one increment with the same weak-CAS retry pattern used by this

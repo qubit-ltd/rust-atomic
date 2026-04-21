@@ -7,16 +7,16 @@
  *
  ******************************************************************************/
 
-//! # Atomic Traits
+//! # Internal Atomic Operations Trait
 //!
-//! Defines common traits for atomic types, providing a unified interface
-//! for atomic operations.
+//! Defines the internal trait used by [`crate::Atomic<T>`] to delegate common
+//! operations to concrete backend implementations.
 //!
 //! # Author
 //!
 //! Haixing Hu
 
-/// Common trait for all atomic types.
+/// Internal common trait for all backend atomic types.
 ///
 /// Provides basic atomic operations including load, store, swap,
 /// compare-and-set, and functional updates.
@@ -24,7 +24,7 @@
 /// # Author
 ///
 /// Haixing Hu
-pub trait Atomic {
+pub trait AtomicOps {
     /// The value type stored in the atomic.
     type Value;
 
@@ -76,8 +76,12 @@ pub trait Atomic {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure where
-    /// `actual` is the real current value.
+    /// `Ok(())` when the value was replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed value when the comparison
+    /// fails. In that case, `new` is not stored.
     fn compare_set(&self, current: Self::Value, new: Self::Value) -> Result<(), Self::Value>;
 
     /// Weak version of compare-and-set.
@@ -95,7 +99,13 @@ pub trait Atomic {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure.
+    /// `Ok(())` when the value was replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed value when the comparison
+    /// fails, including possible spurious failures. In that case, `new` is not
+    /// stored.
     fn compare_set_weak(&self, current: Self::Value, new: Self::Value) -> Result<(), Self::Value>;
 
     /// Compares and exchanges the value atomically, returning the
@@ -138,7 +148,11 @@ pub trait Atomic {
     ///
     /// # Returns
     ///
-    /// The value before the operation.
+    /// The value observed before the operation completed. Because this
+    /// operation may fail spuriously, a returned value equal to `current` does
+    /// not by itself prove that `new` was stored; use
+    /// [`compare_set_weak`](Self::compare_set_weak) when the caller needs an
+    /// explicit success indicator.
     fn compare_exchange_weak(&self, current: Self::Value, new: Self::Value) -> Self::Value;
 
     /// Updates the value using a function, returning the old value.
@@ -153,78 +167,10 @@ pub trait Atomic {
     /// # Returns
     ///
     /// The old value before the update.
+    ///
+    /// The closure may be called more than once when concurrent updates cause
+    /// CAS retries.
     fn fetch_update<F>(&self, f: F) -> Self::Value
     where
         F: Fn(Self::Value) -> Self::Value;
-}
-
-/// Trait for atomic numeric types that support arithmetic operations.
-///
-/// Provides common arithmetic operations (add, subtract, multiply, divide)
-/// for both integer and floating-point atomic types. This trait unifies
-/// the arithmetic interface across all numeric atomic types.
-///
-/// # Note
-///
-/// Integer types also provide `fetch_inc()` and `fetch_dec()` methods
-/// as convenient shortcuts for incrementing/decrementing by 1, but these
-/// are not part of this trait as they are integer-specific operations.
-///
-/// # Author
-///
-/// Haixing Hu
-pub trait AtomicNumber: Atomic {
-    /// Adds a delta to the value, returning the old value.
-    ///
-    /// For integers, uses `Relaxed` ordering by default.
-    /// For floating-point types, uses `AcqRel` ordering (CAS loop).
-    ///
-    /// # Parameters
-    ///
-    /// * `delta` - The value to add.
-    ///
-    /// # Returns
-    ///
-    /// The old value before adding.
-    fn fetch_add(&self, delta: Self::Value) -> Self::Value;
-
-    /// Subtracts a delta from the value, returning the old value.
-    ///
-    /// For integers, uses `Relaxed` ordering by default.
-    /// For floating-point types, uses `AcqRel` ordering (CAS loop).
-    ///
-    /// # Parameters
-    ///
-    /// * `delta` - The value to subtract.
-    ///
-    /// # Returns
-    ///
-    /// The old value before subtracting.
-    fn fetch_sub(&self, delta: Self::Value) -> Self::Value;
-
-    /// Multiplies the value by a factor, returning the old value.
-    ///
-    /// Uses `AcqRel` ordering by default. Implemented via CAS loop.
-    ///
-    /// # Parameters
-    ///
-    /// * `factor` - The value to multiply by.
-    ///
-    /// # Returns
-    ///
-    /// The old value before multiplying.
-    fn fetch_mul(&self, factor: Self::Value) -> Self::Value;
-
-    /// Divides the value by a divisor, returning the old value.
-    ///
-    /// Uses `AcqRel` ordering by default. Implemented via CAS loop.
-    ///
-    /// # Parameters
-    ///
-    /// * `divisor` - The value to divide by.
-    ///
-    /// # Returns
-    ///
-    /// The old value before dividing.
-    fn fetch_div(&self, divisor: Self::Value) -> Self::Value;
 }

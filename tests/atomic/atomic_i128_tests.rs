@@ -7,4 +7,4 @@
  *
  ******************************************************************************/
 
-test_atomic_integer!(i8, atomic_i8_tests);
+test_atomic_integer!(i128, atomic_i128_tests);

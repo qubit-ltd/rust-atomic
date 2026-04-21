@@ -10,7 +10,7 @@
 //!
 //! Demonstrates using atomic booleans for thread synchronization.
 
-use qubit_atomic::AtomicBool;
+use qubit_atomic::Atomic;
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
@@ -20,7 +20,7 @@ fn main() {
 
     // Example 1: Simple flag
     println!("1. Simple Flag:");
-    let flag = AtomicBool::new(false);
+    let flag = Atomic::<bool>::new(false);
     println!("   Initial value: {}", flag.load());
 
     flag.store(true);
@@ -31,7 +31,7 @@ fn main() {
 
     // Example 2: One-time initialization
     println!("\n2. One-time Initialization:");
-    let initialized = Arc::new(AtomicBool::new(false));
+    let initialized = Arc::new(Atomic::<bool>::new(false));
     let mut handles = vec![];
 
     for i in 0..5 {
@@ -55,8 +55,8 @@ fn main() {
 
     // Example 3: Producer-Consumer signaling
     println!("\n3. Producer-Consumer Signaling:");
-    let ready = Arc::new(AtomicBool::new(false));
-    let data = Arc::new(AtomicBool::new(false));
+    let ready = Arc::new(Atomic::<bool>::new(false));
+    let data = Arc::new(Atomic::<bool>::new(false));
 
     let ready_clone = ready.clone();
     let data_clone = data.clone();
@@ -84,7 +84,7 @@ fn main() {
 
     // Example 4: Toggle operations
     println!("\n4. Toggle Operations:");
-    let flag = Arc::new(AtomicBool::new(false));
+    let flag = Arc::new(Atomic::<bool>::new(false));
     let mut handles = vec![];
 
     for i in 0..10 {

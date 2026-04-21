@@ -7,15 +7,9 @@
  *
  ******************************************************************************/
 
-use qubit_atomic::atomic::{
-    Atomic,
-    AtomicRef,
-};
+use qubit_atomic::AtomicRef;
 use std::sync::Arc;
-use std::sync::atomic::{
-    AtomicUsize,
-    Ordering,
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -144,7 +138,7 @@ fn test_compare_and_exchange() {
     });
 
     let current = atomic.load();
-    let prev = atomic.compare_exchange(current.clone(), data2);
+    let prev = atomic.compare_and_exchange(&current, data2);
     assert!(Arc::ptr_eq(&prev, &current));
     assert_eq!(atomic.load().value, 100);
 }
@@ -258,7 +252,7 @@ fn test_clone() {
 
 #[test]
 fn test_trait_atomic() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(42));
         assert_eq!(*atomic.load(), 42);
         let old = atomic.swap(Arc::new(100));
@@ -271,10 +265,10 @@ fn test_trait_atomic() {
 
 #[test]
 fn test_trait_atomic_compare_set_weak() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(10));
         let current = atomic.load();
-        assert!(atomic.compare_set_weak(current, Arc::new(20)).is_ok());
+        assert!(atomic.compare_set_weak(&current, Arc::new(20)).is_ok());
         assert_eq!(*atomic.load(), 20);
     }
 
@@ -284,10 +278,10 @@ fn test_trait_atomic_compare_set_weak() {
 
 #[test]
 fn test_trait_atomic_compare_exchange() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(10));
         let current = atomic.load();
-        let prev = atomic.compare_exchange(current.clone(), Arc::new(20));
+        let prev = atomic.compare_and_exchange(&current, Arc::new(20));
         assert!(Arc::ptr_eq(&prev, &current) || *prev == 10);
         assert_eq!(*atomic.load(), 20);
     }
@@ -298,10 +292,10 @@ fn test_trait_atomic_compare_exchange() {
 
 #[test]
 fn test_trait_atomic_compare_exchange_failure() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(10));
         let wrong = Arc::new(999);
-        let prev = atomic.compare_exchange(wrong, Arc::new(20));
+        let prev = atomic.compare_and_exchange(&wrong, Arc::new(20));
         assert_eq!(*prev, 10);
         assert_eq!(*atomic.load(), 10);
     }
@@ -312,10 +306,10 @@ fn test_trait_atomic_compare_exchange_failure() {
 
 #[test]
 fn test_trait_atomic_compare_exchange_weak() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(10));
         let current = atomic.load();
-        let prev = atomic.compare_exchange_weak(current.clone(), Arc::new(20));
+        let prev = atomic.compare_and_exchange_weak(&current, Arc::new(20));
         assert!(Arc::ptr_eq(&prev, &current) || *prev == 10);
         assert_eq!(*atomic.load(), 20);
     }
@@ -326,10 +320,10 @@ fn test_trait_atomic_compare_exchange_weak() {
 
 #[test]
 fn test_trait_atomic_compare_exchange_weak_failure() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(10));
         let wrong = Arc::new(999);
-        let prev = atomic.compare_exchange_weak(wrong, Arc::new(20));
+        let prev = atomic.compare_and_exchange_weak(&wrong, Arc::new(20));
         assert_eq!(*prev, 10);
         assert_eq!(*atomic.load(), 10);
     }
@@ -340,9 +334,9 @@ fn test_trait_atomic_compare_exchange_weak_failure() {
 
 #[test]
 fn test_trait_atomic_fetch_update() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(10));
-        let old = atomic.fetch_update(|x| Arc::new(*x * 2));
+        let old = atomic.fetch_update(|x| Arc::new(**x * 2));
         assert_eq!(*old, 10);
         assert_eq!(*atomic.load(), 20);
     }
@@ -697,7 +691,7 @@ fn test_debug_simple() {
 
 #[test]
 fn test_trait_atomic_comprehensive() {
-    fn test_atomic<T: Atomic<Value = Arc<i32>>>(atomic: &T) {
+    fn test_atomic(atomic: &AtomicRef<i32>) {
         atomic.store(Arc::new(5));
         assert_eq!(*atomic.load(), 5);
 
@@ -705,10 +699,10 @@ fn test_trait_atomic_comprehensive() {
         assert_eq!(*old, 5);
 
         let current = atomic.load();
-        assert!(atomic.compare_set(current.clone(), Arc::new(15)).is_ok());
+        assert!(atomic.compare_set(&current, Arc::new(15)).is_ok());
 
         let current2 = atomic.load();
-        let prev = atomic.compare_exchange(current2.clone(), Arc::new(20));
+        let prev = atomic.compare_and_exchange(&current2, Arc::new(20));
         assert!(Arc::ptr_eq(&prev, &current2) || *prev == 15);
     }
 
@@ -732,7 +726,7 @@ fn test_compare_and_exchange_same_value() {
     let atomic = AtomicRef::new(data.clone());
 
     let current = atomic.load();
-    let prev = atomic.compare_exchange(current.clone(), data.clone());
+    let prev = atomic.compare_and_exchange(&current, data.clone());
     assert!(Arc::ptr_eq(&prev, &current));
 }
 
@@ -757,7 +751,7 @@ fn test_compare_and_exchange_failure_path() {
     let wrong = Arc::new(999);
     let atomic = AtomicRef::new(data1);
 
-    let prev = atomic.compare_exchange(wrong.clone(), data2);
+    let prev = atomic.compare_and_exchange(&wrong, data2);
     assert_eq!(*prev, 42);
     assert_eq!(*atomic.load(), 42);
 }
@@ -819,7 +813,7 @@ fn test_compare_and_exchange_success_path() {
 
     let current = atomic.load();
     let data2 = Arc::new(100);
-    let prev = atomic.compare_exchange(current.clone(), data2);
+    let prev = atomic.compare_and_exchange(&current, data2);
 
     assert!(Arc::ptr_eq(&prev, &current));
     assert_eq!(*atomic.load(), 100);

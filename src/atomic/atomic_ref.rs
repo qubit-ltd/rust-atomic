@@ -20,8 +20,6 @@ use arc_swap::ArcSwap;
 use std::fmt;
 use std::sync::Arc;
 
-use crate::atomic::traits::Atomic;
-
 /// Atomic reference type.
 ///
 /// Provides easy-to-use atomic operations on references with automatic memory
@@ -74,6 +72,7 @@ use crate::atomic::traits::Atomic;
 ///
 /// Haixing Hu
 pub struct AtomicRef<T> {
+    /// Lock-free atomic storage for the current shared reference.
     inner: ArcSwap<T>,
 }
 
@@ -83,6 +82,10 @@ impl<T> AtomicRef<T> {
     /// # Parameters
     ///
     /// * `value` - The initial reference.
+    ///
+    /// # Returns
+    ///
+    /// An atomic reference initialized to `value`.
     ///
     /// # Example
     ///
@@ -183,7 +186,12 @@ impl<T> AtomicRef<T> {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure.
+    /// `Ok(())` if the pointer comparison succeeds and `new` is stored.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed current reference when the
+    /// pointer comparison fails. On failure, `new` is not installed.
     ///
     /// # Note
     ///
@@ -223,7 +231,14 @@ impl<T> AtomicRef<T> {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure.
+    /// `Ok(())` if the pointer comparison succeeds and `new` is stored.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed current reference when the
+    /// pointer comparison fails. On failure, `new` is not installed. This
+    /// implementation currently delegates to [`compare_set`](Self::compare_set)
+    /// and does not add extra spurious failures.
     ///
     /// # Example
     ///
@@ -375,58 +390,16 @@ impl<T> AtomicRef<T> {
     }
 }
 
-impl<T> Atomic for AtomicRef<T> {
-    type Value = Arc<T>;
-
-    #[inline]
-    fn load(&self) -> Arc<T> {
-        self.load()
-    }
-
-    #[inline]
-    fn store(&self, value: Arc<T>) {
-        self.store(value);
-    }
-
-    #[inline]
-    fn swap(&self, value: Arc<T>) -> Arc<T> {
-        self.swap(value)
-    }
-
-    #[inline]
-    fn compare_set(&self, current: Arc<T>, new: Arc<T>) -> Result<(), Arc<T>> {
-        self.compare_set(&current, new)
-    }
-
-    #[inline]
-    fn compare_set_weak(&self, current: Arc<T>, new: Arc<T>) -> Result<(), Arc<T>> {
-        self.compare_set_weak(&current, new)
-    }
-
-    #[inline]
-    fn compare_exchange(&self, current: Arc<T>, new: Arc<T>) -> Arc<T> {
-        self.compare_and_exchange(&current, new)
-    }
-
-    #[inline]
-    fn compare_exchange_weak(&self, current: Arc<T>, new: Arc<T>) -> Arc<T> {
-        self.compare_and_exchange_weak(&current, new)
-    }
-
-    #[inline]
-    fn fetch_update<F>(&self, f: F) -> Arc<T>
-    where
-        F: Fn(Arc<T>) -> Arc<T>,
-    {
-        self.fetch_update(|x| f(x.clone()))
-    }
-}
-
 impl<T> Clone for AtomicRef<T> {
     /// Clones the atomic reference.
     ///
     /// Creates a new `AtomicRef` that initially points to the same value as
     /// the original, but subsequent atomic operations are independent.
+    ///
+    /// # Returns
+    ///
+    /// A new atomic reference initialized with a clone of the currently loaded
+    /// `Arc`.
     #[inline]
     fn clone(&self) -> Self {
         Self::new(self.load())
@@ -434,6 +407,15 @@ impl<T> Clone for AtomicRef<T> {
 }
 
 impl<T: fmt::Debug> fmt::Debug for AtomicRef<T> {
+    /// Formats the currently loaded reference for debugging.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - The formatter receiving the debug representation.
+    ///
+    /// # Returns
+    ///
+    /// A formatting result from the formatter.
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("AtomicRef")
@@ -443,6 +425,15 @@ impl<T: fmt::Debug> fmt::Debug for AtomicRef<T> {
 }
 
 impl<T: fmt::Display> fmt::Display for AtomicRef<T> {
+    /// Formats the currently loaded reference with display formatting.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - The formatter receiving the displayed value.
+    ///
+    /// # Returns
+    ///
+    /// A formatting result from the formatter.
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.load())

@@ -7,23 +7,9 @@
  *
  ******************************************************************************/
 
-use qubit_atomic::atomic::{
-    AtomicBool,
-    AtomicF32,
-    AtomicI32,
-    AtomicI64,
-    AtomicRef,
-    AtomicU32,
-    AtomicUsize,
-};
-use std::sync::atomic::{
-    AtomicUsize as StdAtomicUsize,
-    Ordering,
-};
-use std::sync::{
-    Arc,
-    Barrier,
-};
+use qubit_atomic::{Atomic, AtomicRef};
+use std::sync::atomic::{AtomicUsize as StdAtomicUsize, Ordering};
+use std::sync::{Arc, Barrier};
 use std::thread;
 use std::time::Duration;
 
@@ -33,7 +19,7 @@ const ITERATIONS_PER_THREAD: usize = 1000;
 // Test concurrent increments
 #[test]
 fn test_concurrent_increment() {
-    let counter = Arc::new(AtomicI32::new(0));
+    let counter = Arc::new(Atomic::<i32>::new(0));
     let mut handles = vec![];
 
     for _ in 0..NUM_THREADS {
@@ -56,7 +42,7 @@ fn test_concurrent_increment() {
 // Test concurrent decrements
 #[test]
 fn test_concurrent_decrement() {
-    let counter = Arc::new(AtomicI64::new(10000));
+    let counter = Arc::new(Atomic::<i64>::new(10000));
     let mut handles = vec![];
 
     for _ in 0..NUM_THREADS {
@@ -79,7 +65,7 @@ fn test_concurrent_decrement() {
 // Test concurrent CAS operations
 #[test]
 fn test_concurrent_cas() {
-    let atomic = Arc::new(AtomicU32::new(0));
+    let atomic = Arc::new(Atomic::<u32>::new(0));
     let success_count = Arc::new(StdAtomicUsize::new(0));
     let mut handles = vec![];
 
@@ -112,7 +98,7 @@ fn test_concurrent_cas() {
 // Test concurrent swap operations
 #[test]
 fn test_concurrent_swap() {
-    let atomic = Arc::new(AtomicI32::new(0));
+    let atomic = Arc::new(Atomic::<i32>::new(0));
     let mut handles = vec![];
     let sum = Arc::new(StdAtomicUsize::new(0));
 
@@ -138,7 +124,7 @@ fn test_concurrent_swap() {
 // Test concurrent boolean flag operations
 #[test]
 fn test_concurrent_flag() {
-    let flag = Arc::new(AtomicBool::new(false));
+    let flag = Arc::new(Atomic::<bool>::new(false));
     let success_count = Arc::new(StdAtomicUsize::new(0));
     let mut handles = vec![];
 
@@ -165,7 +151,7 @@ fn test_concurrent_flag() {
 // Test concurrent toggle operations
 #[test]
 fn test_concurrent_toggle() {
-    let flag = Arc::new(AtomicBool::new(false));
+    let flag = Arc::new(Atomic::<bool>::new(false));
     let mut handles = vec![];
 
     for _ in 0..NUM_THREADS {
@@ -189,7 +175,7 @@ fn test_concurrent_toggle() {
 // Test concurrent floating-point additions
 #[test]
 fn test_concurrent_float_add() {
-    let sum = Arc::new(AtomicF32::new(0.0));
+    let sum = Arc::new(Atomic::<f32>::new(0.0));
     let mut handles = vec![];
 
     for _ in 0..NUM_THREADS {
@@ -241,7 +227,7 @@ fn test_concurrent_ref_update() {
 // Test concurrent accumulate operations
 #[test]
 fn test_concurrent_accumulate() {
-    let atomic = Arc::new(AtomicI32::new(1));
+    let atomic = Arc::new(Atomic::<i32>::new(1));
     let mut handles = vec![];
 
     for _ in 0..5 {
@@ -263,7 +249,7 @@ fn test_concurrent_accumulate() {
 // Test concurrent max operations
 #[test]
 fn test_concurrent_max() {
-    let atomic = Arc::new(AtomicI32::new(0));
+    let atomic = Arc::new(Atomic::<i32>::new(0));
     let mut handles = vec![];
 
     for i in 0..NUM_THREADS {
@@ -284,7 +270,7 @@ fn test_concurrent_max() {
 // Test concurrent min operations
 #[test]
 fn test_concurrent_min() {
-    let atomic = Arc::new(AtomicI32::new(1000));
+    let atomic = Arc::new(Atomic::<i32>::new(1000));
     let mut handles = vec![];
 
     for i in 0..NUM_THREADS {
@@ -305,7 +291,7 @@ fn test_concurrent_min() {
 // Test barrier synchronization with atomic operations
 #[test]
 fn test_barrier_sync() {
-    let counter = Arc::new(AtomicUsize::new(0));
+    let counter = Arc::new(Atomic::<usize>::new(0));
     let barrier = Arc::new(Barrier::new(NUM_THREADS));
     let mut handles = vec![];
 
@@ -331,8 +317,8 @@ fn test_barrier_sync() {
 // Test producer-consumer pattern with atomic flag
 #[test]
 fn test_producer_consumer() {
-    let data = Arc::new(AtomicI32::new(0));
-    let ready = Arc::new(AtomicBool::new(false));
+    let data = Arc::new(Atomic::<i32>::new(0));
+    let ready = Arc::new(Atomic::<bool>::new(false));
 
     let data_clone = data.clone();
     let ready_clone = ready.clone();
@@ -360,8 +346,8 @@ fn test_producer_consumer() {
 // Test spinlock-like pattern
 #[test]
 fn test_spinlock_pattern() {
-    let lock = Arc::new(AtomicBool::new(false));
-    let counter = Arc::new(AtomicI32::new(0));
+    let lock = Arc::new(Atomic::<bool>::new(false));
+    let counter = Arc::new(Atomic::<i32>::new(0));
     let mut handles = vec![];
 
     for _ in 0..NUM_THREADS {
@@ -396,7 +382,7 @@ fn test_spinlock_pattern() {
 // Test concurrent bitwise operations
 #[test]
 fn test_concurrent_bitwise() {
-    let atomic = Arc::new(AtomicU32::new(0));
+    let atomic = Arc::new(Atomic::<u32>::new(0));
     let mut handles = vec![];
 
     for i in 0..NUM_THREADS {
@@ -423,8 +409,8 @@ fn test_concurrent_bitwise() {
 // Test memory ordering visibility
 #[test]
 fn test_memory_ordering_visibility() {
-    let data = Arc::new(AtomicI32::new(0));
-    let flag = Arc::new(AtomicBool::new(false));
+    let data = Arc::new(Atomic::<i32>::new(0));
+    let flag = Arc::new(Atomic::<bool>::new(false));
 
     let data_clone = data.clone();
     let flag_clone = flag.clone();

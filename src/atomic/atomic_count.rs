@@ -7,7 +7,7 @@
  *
  ******************************************************************************/
 
-//! # Atomic Counter
+//! # Atomic Count
 //!
 //! Provides a non-negative atomic counter for values whose transitions are
 //! used as synchronization signals.
@@ -17,10 +17,7 @@
 //! Haixing Hu
 
 use std::fmt;
-use std::sync::atomic::{
-    AtomicUsize as StdAtomicUsize,
-    Ordering,
-};
+use std::sync::atomic::{AtomicUsize as StdAtomicUsize, Ordering};
 
 /// A non-negative atomic counter with synchronization-oriented operations.
 ///
@@ -30,7 +27,7 @@ use std::sync::atomic::{
 /// the update, which makes zero-transition logic straightforward.
 ///
 /// For pure metrics, statistics, event counters, or ID generation, prefer the
-/// regular atomic integer types such as [`AtomicUsize`](crate::AtomicUsize).
+/// regular atomic integer types such as [`Atomic<usize>`](crate::Atomic).
 /// Those types keep arithmetic operations lightweight for pure counting.
 ///
 /// This counter never wraps. Incrementing past [`usize::MAX`] panics, and
@@ -41,9 +38,9 @@ use std::sync::atomic::{
 /// # Example
 ///
 /// ```rust
-/// use qubit_atomic::AtomicCounter;
+/// use qubit_atomic::AtomicCount;
 ///
-/// let active_tasks = AtomicCounter::zero();
+/// let active_tasks = AtomicCount::zero();
 ///
 /// active_tasks.inc();
 /// assert!(!active_tasks.is_zero());
@@ -57,11 +54,12 @@ use std::sync::atomic::{
 ///
 /// Haixing Hu
 #[repr(transparent)]
-pub struct AtomicCounter {
+pub struct AtomicCount {
+    /// Standard-library atomic storage for the non-negative counter value.
     inner: StdAtomicUsize,
 }
 
-impl AtomicCounter {
+impl AtomicCount {
     /// Creates a new non-negative atomic counter.
     ///
     /// # Parameters
@@ -75,9 +73,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(3);
+    /// let counter = AtomicCount::new(3);
     /// assert_eq!(counter.get(), 3);
     /// ```
     #[inline]
@@ -96,9 +94,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::zero();
+    /// let counter = AtomicCount::zero();
     /// assert!(counter.is_zero());
     /// ```
     #[inline]
@@ -115,9 +113,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(7);
+    /// let counter = AtomicCount::new(7);
     /// assert_eq!(counter.get(), 7);
     /// ```
     #[inline]
@@ -134,9 +132,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::zero();
+    /// let counter = AtomicCount::zero();
     /// assert!(counter.is_zero());
     /// ```
     #[inline]
@@ -153,9 +151,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(1);
+    /// let counter = AtomicCount::new(1);
     /// assert!(counter.is_positive());
     /// ```
     #[inline]
@@ -176,9 +174,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::zero();
+    /// let counter = AtomicCount::zero();
     /// assert_eq!(counter.inc(), 1);
     /// ```
     #[inline]
@@ -203,9 +201,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(2);
+    /// let counter = AtomicCount::new(2);
     /// assert_eq!(counter.add(3), 5);
     /// ```
     #[inline]
@@ -227,9 +225,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(2);
+    /// let counter = AtomicCount::new(2);
     /// assert_eq!(counter.try_add(3), Some(5));
     /// ```
     #[inline]
@@ -242,9 +240,9 @@ impl AtomicCounter {
     /// This method is useful for detecting the transition to zero:
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(1);
+    /// let counter = AtomicCount::new(1);
     /// if counter.dec() == 0 {
     ///     // This call consumed the final counted item.
     /// }
@@ -272,9 +270,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(1);
+    /// let counter = AtomicCount::new(1);
     /// assert_eq!(counter.try_dec(), Some(0));
     /// assert_eq!(counter.try_dec(), None);
     /// ```
@@ -300,9 +298,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(5);
+    /// let counter = AtomicCount::new(5);
     /// assert_eq!(counter.sub(2), 3);
     /// ```
     #[inline]
@@ -324,9 +322,9 @@ impl AtomicCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicCounter;
+    /// use qubit_atomic::AtomicCount;
     ///
-    /// let counter = AtomicCounter::new(3);
+    /// let counter = AtomicCount::new(3);
     /// assert_eq!(counter.try_sub(2), Some(1));
     /// assert_eq!(counter.try_sub(2), None);
     /// ```
@@ -368,30 +366,62 @@ impl AtomicCounter {
     }
 }
 
-impl Default for AtomicCounter {
+impl Default for AtomicCount {
+    /// Creates a zero-valued atomic counter.
+    ///
+    /// # Returns
+    ///
+    /// A counter whose current value is zero.
     #[inline]
     fn default() -> Self {
         Self::zero()
     }
 }
 
-impl From<usize> for AtomicCounter {
+impl From<usize> for AtomicCount {
+    /// Converts an initial counter value into an [`AtomicCount`].
+    ///
+    /// # Parameters
+    ///
+    /// * `value` - The initial counter value.
+    ///
+    /// # Returns
+    ///
+    /// A counter initialized to `value`.
     #[inline]
     fn from(value: usize) -> Self {
         Self::new(value)
     }
 }
 
-impl fmt::Debug for AtomicCounter {
+impl fmt::Debug for AtomicCount {
+    /// Formats the current counter value for debugging.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - The formatter receiving the debug representation.
+    ///
+    /// # Returns
+    ///
+    /// A formatting result from the formatter.
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("AtomicCounter")
+        f.debug_struct("AtomicCount")
             .field("value", &self.get())
             .finish()
     }
 }
 
-impl fmt::Display for AtomicCounter {
+impl fmt::Display for AtomicCount {
+    /// Formats the current counter value with decimal display formatting.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - The formatter receiving the displayed value.
+    ///
+    /// # Returns
+    ///
+    /// A formatting result from the formatter.
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.get())

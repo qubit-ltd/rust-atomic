@@ -7,4 +7,4 @@
  *
  ******************************************************************************/
 
-test_atomic_integer!(AtomicI32, i32, atomic_i32_tests);
+test_atomic_integer!(i32, atomic_i32_tests);

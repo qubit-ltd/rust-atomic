@@ -73,6 +73,9 @@ done
 # Default format is html
 FORMAT_ARG="${FORMAT_ARG:-html}"
 
+# Ensure explicit output paths used by cargo-llvm-cov exist.
+mkdir -p target/llvm-cov
+
 # If --clean option is specified, clean old data
 if [ "$CLEAN_FLAG" = "yes" ]; then
     echo "🧹 Cleaning old coverage data..."
@@ -189,4 +192,3 @@ case "$FORMAT_ARG" in
 esac
 
 echo "✅ Code coverage testing completed!"
-

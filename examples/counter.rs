@@ -10,7 +10,7 @@
 //!
 //! Demonstrates using atomic integers as thread-safe counters.
 
-use qubit_atomic::AtomicI32;
+use qubit_atomic::Atomic;
 use std::sync::Arc;
 use std::thread;
 
@@ -19,7 +19,7 @@ fn main() {
 
     // Example 1: Basic counter operations
     println!("1. Basic Counter Operations:");
-    let counter = AtomicI32::new(0);
+    let counter = Atomic::<i32>::new(0);
     println!("   Initial value: {}", counter.load());
 
     counter.fetch_inc();
@@ -33,7 +33,7 @@ fn main() {
 
     // Example 2: Multi-threaded counter
     println!("\n2. Multi-threaded Counter:");
-    let counter = Arc::new(AtomicI32::new(0));
+    let counter = Arc::new(Atomic::<i32>::new(0));
     let num_threads = 10;
     let increments_per_thread = 1000;
 
@@ -61,7 +61,7 @@ fn main() {
 
     // Example 3: Compare-and-swap
     println!("\n3. Compare-and-Swap:");
-    let counter = AtomicI32::new(10);
+    let counter = Atomic::<i32>::new(10);
     println!("   Initial value: {}", counter.load());
 
     match counter.compare_set(10, 20) {
@@ -76,7 +76,7 @@ fn main() {
 
     // Example 4: Functional updates
     println!("\n4. Functional Updates:");
-    let counter = AtomicI32::new(5);
+    let counter = Atomic::<i32>::new(5);
     println!("   Initial value: {}", counter.load());
 
     let old = counter.fetch_update(|x| x * 2);
@@ -87,7 +87,7 @@ fn main() {
 
     // Example 5: Accumulate operations
     println!("\n5. Accumulate Operations:");
-    let counter = AtomicI32::new(1);
+    let counter = Atomic::<i32>::new(1);
     println!("   Initial value: {}", counter.load());
 
     let old = counter.fetch_accumulate(2, |a, b| a * b);

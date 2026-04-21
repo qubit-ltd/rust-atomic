@@ -16,11 +16,10 @@
 //!
 //! Haixing Hu
 
-use std::fmt;
 use std::sync::atomic::AtomicBool as StdAtomicBool;
 use std::sync::atomic::Ordering;
 
-use crate::atomic::traits::Atomic;
+use crate::atomic::atomic_ops::AtomicOps;
 
 /// Atomic boolean type.
 ///
@@ -59,11 +58,11 @@ use crate::atomic::traits::Atomic;
 /// # Example
 ///
 /// ```rust
-/// use qubit_atomic::AtomicBool;
+/// use qubit_atomic::Atomic;
 /// use std::sync::Arc;
 /// use std::thread;
 ///
-/// let flag = Arc::new(AtomicBool::new(false));
+/// let flag = Arc::new(Atomic::<bool>::new(false));
 /// let flag_clone = flag.clone();
 ///
 /// let handle = thread::spawn(move || {
@@ -79,6 +78,7 @@ use crate::atomic::traits::Atomic;
 /// Haixing Hu
 #[repr(transparent)]
 pub struct AtomicBool {
+    /// Standard-library atomic boolean used as the storage backend.
     inner: StdAtomicBool,
 }
 
@@ -89,12 +89,16 @@ impl AtomicBool {
     ///
     /// * `value` - The initial value.
     ///
+    /// # Returns
+    ///
+    /// An atomic boolean initialized to `value`.
+    ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// assert_eq!(flag.load(), false);
     /// ```
     #[inline]
@@ -124,9 +128,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(true);
+    /// let flag = Atomic::<bool>::new(true);
     /// assert_eq!(flag.load(), true);
     /// ```
     #[inline]
@@ -153,9 +157,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// flag.store(true);
     /// assert_eq!(flag.load(), true);
     /// ```
@@ -187,9 +191,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// let old = flag.swap(true);
     /// assert_eq!(old, false);
     /// assert_eq!(flag.load(), true);
@@ -222,14 +226,19 @@ impl AtomicBool {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure.
+    /// `Ok(())` when the value was replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed value when the comparison
+    /// fails. In that case, `new` is not stored.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// assert!(flag.compare_set(false, true).is_ok());
     /// assert_eq!(flag.load(), true);
     ///
@@ -257,14 +266,20 @@ impl AtomicBool {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure.
+    /// `Ok(())` when the value was replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed value when the comparison
+    /// fails, including possible spurious failures. In that case, `new` is not
+    /// stored.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// let mut current = flag.load();
     /// loop {
     ///     match flag.compare_set_weak(current, true) {
@@ -296,14 +311,16 @@ impl AtomicBool {
     ///
     /// # Returns
     ///
-    /// The value before the operation.
+    /// The value observed before the operation completed. If the returned
+    /// value equals `current`, the exchange succeeded; otherwise it is the
+    /// actual value that prevented the exchange.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// let prev = flag.compare_and_exchange(false, true);
     /// assert_eq!(prev, false);
     /// assert_eq!(flag.load(), true);
@@ -333,18 +350,22 @@ impl AtomicBool {
     ///
     /// # Returns
     ///
-    /// The value before the operation.
+    /// The value observed before the operation completed. Because this
+    /// operation may fail spuriously, a returned value equal to `current` does
+    /// not by itself prove that `new` was stored; use
+    /// [`compare_set_weak`](Self::compare_set_weak) when the caller needs an
+    /// explicit success indicator.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// let mut current = flag.load();
     /// loop {
     ///     let prev = flag.compare_and_exchange_weak(current, true);
-    ///     if prev == current {
+    ///     if flag.load() {
     ///         break;
     ///     }
     ///     current = prev;
@@ -377,9 +398,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// let old = flag.fetch_set();
     /// assert_eq!(old, false);
     /// assert_eq!(flag.load(), true);
@@ -404,9 +425,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(true);
+    /// let flag = Atomic::<bool>::new(true);
     /// let old = flag.fetch_clear();
     /// assert_eq!(old, true);
     /// assert_eq!(flag.load(), false);
@@ -430,9 +451,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// assert_eq!(flag.fetch_not(), false);
     /// assert_eq!(flag.load(), true);
     /// assert_eq!(flag.fetch_not(), true);
@@ -462,9 +483,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(true);
+    /// let flag = Atomic::<bool>::new(true);
     /// assert_eq!(flag.fetch_and(false), true);
     /// assert_eq!(flag.load(), false);
     /// ```
@@ -492,9 +513,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// assert_eq!(flag.fetch_or(true), false);
     /// assert_eq!(flag.load(), true);
     /// ```
@@ -522,9 +543,9 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// assert_eq!(flag.fetch_xor(true), false);
     /// assert_eq!(flag.load(), true);
     /// ```
@@ -543,15 +564,19 @@ impl AtomicBool {
     ///
     /// # Returns
     ///
-    /// `Ok(())` if the value was `false` and has been set to `new`,
-    /// `Err(true)` if the value was already `true`.
+    /// `Ok(())` if the value was `false` and has been set to `new`.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(true)` if the value was already `true`. In that case,
+    /// `new` is not stored.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// assert!(flag.set_if_false(true).is_ok());
     /// assert_eq!(flag.load(), true);
     ///
@@ -573,15 +598,19 @@ impl AtomicBool {
     ///
     /// # Returns
     ///
-    /// `Ok(())` if the value was `true` and has been set to `new`,
-    /// `Err(false)` if the value was already `false`.
+    /// `Ok(())` if the value was `true` and has been set to `new`.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(false)` if the value was already `false`. In that case,
+    /// `new` is not stored.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let flag = AtomicBool::new(true);
+    /// let flag = Atomic::<bool>::new(true);
     /// assert!(flag.set_if_true(false).is_ok());
     /// assert_eq!(flag.load(), false);
     ///
@@ -612,10 +641,10 @@ impl AtomicBool {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicBool;
+    /// use qubit_atomic::Atomic;
     /// use std::sync::atomic::Ordering;
     ///
-    /// let flag = AtomicBool::new(false);
+    /// let flag = Atomic::<bool>::new(false);
     /// flag.inner().store(true, Ordering::Relaxed);
     /// assert_eq!(flag.inner().load(Ordering::Relaxed), true);
     /// ```
@@ -625,7 +654,7 @@ impl AtomicBool {
     }
 }
 
-impl Atomic for AtomicBool {
+impl AtomicOps for AtomicBool {
     type Value = bool;
 
     #[inline]
@@ -676,35 +705,5 @@ impl Atomic for AtomicBool {
                 Err(actual) => current = actual,
             }
         }
-    }
-}
-
-impl Default for AtomicBool {
-    #[inline]
-    fn default() -> Self {
-        Self::new(false)
-    }
-}
-
-impl From<bool> for AtomicBool {
-    #[inline]
-    fn from(value: bool) -> Self {
-        Self::new(value)
-    }
-}
-
-impl fmt::Debug for AtomicBool {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("AtomicBool")
-            .field("value", &self.load())
-            .finish()
-    }
-}
-
-impl fmt::Display for AtomicBool {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.load())
     }
 }

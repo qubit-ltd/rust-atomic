@@ -7,4 +7,5 @@
  *
  ******************************************************************************/
 
-test_atomic_integer!(i8, atomic_i8_tests);
+#[macro_use]
+mod test_atomic_integer;

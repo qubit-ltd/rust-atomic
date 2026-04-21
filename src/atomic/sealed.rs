@@ -7,4 +7,7 @@
  *
  ******************************************************************************/
 
-test_atomic_integer!(i8, atomic_i8_tests);
+//! Sealing support for internal marker traits.
+
+/// Marker trait used to seal atomic value implementations.
+pub trait Sealed {}

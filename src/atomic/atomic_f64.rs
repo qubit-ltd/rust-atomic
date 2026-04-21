@@ -16,12 +16,11 @@
 //!
 //! Haixing Hu
 
-use std::fmt;
 use std::sync::atomic::AtomicU64;
 use std::sync::atomic::Ordering;
 
-use crate::atomic::traits::Atomic;
-use crate::atomic::traits::AtomicNumber;
+use crate::atomic::atomic_number_ops::AtomicNumberOps;
+use crate::atomic::atomic_ops::AtomicOps;
 
 /// Atomic 64-bit floating point number.
 ///
@@ -62,15 +61,16 @@ use crate::atomic::traits::AtomicNumber;
 /// # Limitations
 ///
 /// - Arithmetic operations use CAS loops (slower than integer operations)
-/// - NaN values may cause unexpected behavior in CAS operations
+/// - CAS comparisons use exact IEEE-754 bit patterns, so different NaN
+///   payloads and `0.0`/`-0.0` are treated as different values
 /// - No max/min operations (complex floating point semantics)
 ///
 /// # Example
 ///
 /// ```rust
-/// use qubit_atomic::AtomicF64;
+/// use qubit_atomic::Atomic;
 ///
-/// let atomic = AtomicF64::new(3.14159);
+/// let atomic = Atomic::<f64>::new(3.14159);
 /// atomic.fetch_add(1.0);
 /// assert_eq!(atomic.load(), 4.14159);
 /// ```
@@ -80,6 +80,7 @@ use crate::atomic::traits::AtomicNumber;
 /// Haixing Hu
 #[repr(transparent)]
 pub struct AtomicF64 {
+    /// Raw-bit atomic storage for the `f64` value.
     inner: AtomicU64,
 }
 
@@ -90,12 +91,16 @@ impl AtomicF64 {
     ///
     /// * `value` - The initial value.
     ///
+    /// # Returns
+    ///
+    /// An atomic `f64` initialized to `value`.
+    ///
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicF64;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let atomic = AtomicF64::new(3.14159);
+    /// let atomic = Atomic::<f64>::new(3.14159);
     /// assert_eq!(atomic.load(), 3.14159);
     /// ```
     #[inline]
@@ -162,6 +167,9 @@ impl AtomicF64 {
     /// `Ok(())`. Otherwise, returns `Err(actual)` where `actual` is the
     /// current value.
     ///
+    /// Comparison uses the exact raw bit pattern produced by
+    /// [`f64::to_bits`], not [`PartialEq`].
+    ///
     /// # Memory Ordering
     ///
     /// - **Success**: Uses `AcqRel` ordering on the underlying `AtomicU64`
@@ -176,7 +184,12 @@ impl AtomicF64 {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure.
+    /// `Ok(())` when the value was replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed value when the raw-bit
+    /// comparison fails. In that case, `new` is not stored.
     #[inline]
     pub fn compare_set(&self, current: f64, new: f64) -> Result<(), f64> {
         self.inner
@@ -196,6 +209,8 @@ impl AtomicF64 {
     /// in a loop.
     ///
     /// Uses `AcqRel` ordering on success and `Acquire` ordering on failure.
+    /// Comparison uses the exact raw bit pattern produced by
+    /// [`f64::to_bits`].
     ///
     /// # Parameters
     ///
@@ -204,7 +219,13 @@ impl AtomicF64 {
     ///
     /// # Returns
     ///
-    /// `Ok(())` on success, or `Err(actual)` on failure.
+    /// `Ok(())` when the value was replaced.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err(actual)` with the observed value when the raw-bit
+    /// comparison fails, including possible spurious failures. In that case,
+    /// `new` is not stored.
     #[inline]
     pub fn compare_set_weak(&self, current: f64, new: f64) -> Result<(), f64> {
         self.inner
@@ -233,7 +254,9 @@ impl AtomicF64 {
     ///
     /// # Returns
     ///
-    /// The value before the operation.
+    /// The value observed before the operation completed. If the returned
+    /// value has the same raw bits as `current`, the exchange succeeded;
+    /// otherwise it is the actual value that prevented the exchange.
     #[inline]
     pub fn compare_and_exchange(&self, current: f64, new: f64) -> f64 {
         match self.inner.compare_exchange(
@@ -261,7 +284,11 @@ impl AtomicF64 {
     ///
     /// # Returns
     ///
-    /// The value before the operation.
+    /// The value observed before the operation completed. Because this
+    /// operation may fail spuriously, a returned value with the same raw bits
+    /// as `current` does not by itself prove that `new` was stored; use
+    /// [`compare_set_weak`](Self::compare_set_weak) when the caller needs an
+    /// explicit success indicator.
     #[inline]
     pub fn compare_and_exchange_weak(&self, current: f64, new: f64) -> f64 {
         match self.inner.compare_exchange_weak(
@@ -299,23 +326,16 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicF64;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let atomic = AtomicF64::new(10.0);
+    /// let atomic = Atomic::<f64>::new(10.0);
     /// let old = atomic.fetch_add(5.5);
     /// assert_eq!(old, 10.0);
     /// assert_eq!(atomic.load(), 15.5);
     /// ```
     #[inline]
     pub fn fetch_add(&self, delta: f64) -> f64 {
-        let mut current = self.load();
-        loop {
-            let new = current + delta;
-            match self.compare_set_weak(current, new) {
-                Ok(_) => return current,
-                Err(actual) => current = actual,
-            }
-        }
+        self.fetch_update(|current| current + delta)
     }
 
     /// Atomically subtracts a value, returning the old value.
@@ -337,23 +357,16 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicF64;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let atomic = AtomicF64::new(10.0);
+    /// let atomic = Atomic::<f64>::new(10.0);
     /// let old = atomic.fetch_sub(3.5);
     /// assert_eq!(old, 10.0);
     /// assert_eq!(atomic.load(), 6.5);
     /// ```
     #[inline]
     pub fn fetch_sub(&self, delta: f64) -> f64 {
-        let mut current = self.load();
-        loop {
-            let new = current - delta;
-            match self.compare_set_weak(current, new) {
-                Ok(_) => return current,
-                Err(actual) => current = actual,
-            }
-        }
+        self.fetch_update(|current| current - delta)
     }
 
     /// Atomically multiplies by a factor, returning the old value.
@@ -375,23 +388,16 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicF64;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let atomic = AtomicF64::new(10.0);
+    /// let atomic = Atomic::<f64>::new(10.0);
     /// let old = atomic.fetch_mul(2.5);
     /// assert_eq!(old, 10.0);
     /// assert_eq!(atomic.load(), 25.0);
     /// ```
     #[inline]
     pub fn fetch_mul(&self, factor: f64) -> f64 {
-        let mut current = self.load();
-        loop {
-            let new = current * factor;
-            match self.compare_set_weak(current, new) {
-                Ok(_) => return current,
-                Err(actual) => current = actual,
-            }
-        }
+        self.fetch_update(|current| current * factor)
     }
 
     /// Atomically divides by a divisor, returning the old value.
@@ -413,23 +419,16 @@ impl AtomicF64 {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicF64;
+    /// use qubit_atomic::Atomic;
     ///
-    /// let atomic = AtomicF64::new(10.0);
+    /// let atomic = Atomic::<f64>::new(10.0);
     /// let old = atomic.fetch_div(2.0);
     /// assert_eq!(old, 10.0);
     /// assert_eq!(atomic.load(), 5.0);
     /// ```
     #[inline]
     pub fn fetch_div(&self, divisor: f64) -> f64 {
-        let mut current = self.load();
-        loop {
-            let new = current / divisor;
-            match self.compare_set_weak(current, new) {
-                Ok(_) => return current,
-                Err(actual) => current = actual,
-            }
-        }
+        self.fetch_update(|current| current / divisor)
     }
 
     /// Updates the value using a function, returning the old value.
@@ -448,6 +447,9 @@ impl AtomicF64 {
     /// # Returns
     ///
     /// The old value before the update.
+    ///
+    /// The closure may be called more than once when concurrent updates cause
+    /// CAS retries.
     #[inline]
     pub fn fetch_update<F>(&self, f: F) -> f64
     where
@@ -484,7 +486,7 @@ impl AtomicF64 {
     }
 }
 
-impl Atomic for AtomicF64 {
+impl AtomicOps for AtomicF64 {
     type Value = f64;
 
     #[inline]
@@ -531,7 +533,7 @@ impl Atomic for AtomicF64 {
     }
 }
 
-impl AtomicNumber for AtomicF64 {
+impl AtomicNumberOps for AtomicF64 {
     #[inline]
     fn fetch_add(&self, delta: f64) -> f64 {
         self.fetch_add(delta)
@@ -550,35 +552,5 @@ impl AtomicNumber for AtomicF64 {
     #[inline]
     fn fetch_div(&self, divisor: f64) -> f64 {
         self.fetch_div(divisor)
-    }
-}
-
-impl Default for AtomicF64 {
-    #[inline]
-    fn default() -> Self {
-        Self::new(0.0)
-    }
-}
-
-impl From<f64> for AtomicF64 {
-    #[inline]
-    fn from(value: f64) -> Self {
-        Self::new(value)
-    }
-}
-
-impl fmt::Debug for AtomicF64 {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("AtomicF64")
-            .field("value", &self.load())
-            .finish()
-    }
-}
-
-impl fmt::Display for AtomicF64 {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.load())
     }
 }

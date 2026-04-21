@@ -7,11 +7,7 @@
  *
  ******************************************************************************/
 
-use qubit_atomic::atomic::{
-    Atomic,
-    AtomicF32,
-    AtomicNumber,
-};
+use qubit_atomic::Atomic;
 use std::sync::Arc;
 use std::thread;
 
@@ -19,25 +15,25 @@ const EPSILON: f32 = 1e-6;
 
 #[test]
 fn test_new() {
-    let atomic = AtomicF32::new(std::f32::consts::PI);
+    let atomic = Atomic::<f32>::new(std::f32::consts::PI);
     assert!((atomic.load() - std::f32::consts::PI).abs() < EPSILON);
 }
 
 #[test]
 fn test_default() {
-    let atomic = AtomicF32::default();
+    let atomic = Atomic::<f32>::default();
     assert_eq!(atomic.load(), 0.0);
 }
 
 #[test]
 fn test_from() {
-    let atomic = AtomicF32::from(2.71);
+    let atomic = Atomic::<f32>::from(2.71);
     assert!((atomic.load() - 2.71).abs() < EPSILON);
 }
 
 #[test]
 fn test_get_set() {
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     atomic.store(std::f32::consts::PI);
     assert!((atomic.load() - std::f32::consts::PI).abs() < EPSILON);
     atomic.store(-2.5);
@@ -46,7 +42,7 @@ fn test_get_set() {
 
 #[test]
 fn test_swap() {
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     let old = atomic.swap(2.0);
     assert!((old - 1.0).abs() < EPSILON);
     assert!((atomic.load() - 2.0).abs() < EPSILON);
@@ -54,14 +50,14 @@ fn test_swap() {
 
 #[test]
 fn test_compare_and_set_success() {
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     assert!(atomic.compare_set(1.0, 2.0).is_ok());
     assert!((atomic.load() - 2.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_compare_and_set_failure() {
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     match atomic.compare_set(1.5, 2.0) {
         Ok(_) => panic!("Should fail"),
         Err(actual) => assert!((actual - 1.0).abs() < EPSILON),
@@ -71,15 +67,15 @@ fn test_compare_and_set_failure() {
 
 #[test]
 fn test_compare_and_exchange() {
-    let atomic = AtomicF32::new(1.0);
-    let prev = atomic.compare_exchange(1.0, 2.0);
+    let atomic = Atomic::<f32>::new(1.0);
+    let prev = atomic.compare_and_exchange(1.0, 2.0);
     assert!((prev - 1.0).abs() < EPSILON);
     assert!((atomic.load() - 2.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_add() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_add(5.5);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 15.5).abs() < EPSILON);
@@ -87,7 +83,7 @@ fn test_add() {
 
 #[test]
 fn test_sub() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_sub(3.5);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 6.5).abs() < EPSILON);
@@ -95,7 +91,7 @@ fn test_sub() {
 
 #[test]
 fn test_mul() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_mul(2.5);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 25.0).abs() < EPSILON);
@@ -103,7 +99,7 @@ fn test_mul() {
 
 #[test]
 fn test_div() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_div(2.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 5.0).abs() < EPSILON);
@@ -111,7 +107,7 @@ fn test_div() {
 
 #[test]
 fn test_get_and_update() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_update(|x| x * 2.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 20.0).abs() < EPSILON);
@@ -119,7 +115,7 @@ fn test_get_and_update() {
 
 #[test]
 fn test_concurrent_add() {
-    let sum = Arc::new(AtomicF32::new(0.0));
+    let sum = Arc::new(Atomic::<f32>::new(0.0));
     let mut handles = vec![];
 
     for _ in 0..10 {
@@ -143,58 +139,58 @@ fn test_concurrent_add() {
 
 #[test]
 fn test_trait_atomic() {
-    fn test_atomic<T: Atomic<Value = f32>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<f32>) {
         atomic.store(std::f32::consts::PI);
         assert!((atomic.load() - std::f32::consts::PI).abs() < EPSILON);
         let old = atomic.swap(2.71);
         assert!((old - std::f32::consts::PI).abs() < EPSILON);
     }
 
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_trait_atomic_compare_set_weak() {
-    fn test_atomic<T: Atomic<Value = f32>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<f32>) {
         atomic.store(1.0);
         assert!(atomic.compare_set_weak(1.0, 2.0).is_ok());
         assert!((atomic.load() - 2.0).abs() < EPSILON);
     }
 
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_trait_atomic_compare_exchange_weak() {
-    fn test_atomic<T: Atomic<Value = f32>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<f32>) {
         atomic.store(1.0);
-        let prev = atomic.compare_exchange_weak(1.0, 2.0);
+        let prev = atomic.compare_and_exchange_weak(1.0, 2.0);
         assert!((prev - 1.0).abs() < EPSILON);
         assert!((atomic.load() - 2.0).abs() < EPSILON);
     }
 
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_trait_atomic_fetch_update() {
-    fn test_atomic<T: Atomic<Value = f32>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<f32>) {
         atomic.store(10.0);
         let old = atomic.fetch_update(|x| x * 2.0);
         assert!((old - 10.0).abs() < EPSILON);
         assert!((atomic.load() - 20.0).abs() < EPSILON);
     }
 
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_debug_display() {
-    let atomic = AtomicF32::new(std::f32::consts::PI);
+    let atomic = Atomic::<f32>::new(std::f32::consts::PI);
     let debug_str = format!("{:?}", atomic);
     assert!(debug_str.contains("3.14"));
     let display_str = format!("{}", atomic);
@@ -203,7 +199,7 @@ fn test_debug_display() {
 
 #[test]
 fn test_negative_values() {
-    let atomic = AtomicF32::new(-10.5);
+    let atomic = Atomic::<f32>::new(-10.5);
     assert!((atomic.load() - (-10.5)).abs() < EPSILON);
     atomic.fetch_add(5.5);
     assert!((atomic.load() - (-5.0)).abs() < EPSILON);
@@ -211,7 +207,7 @@ fn test_negative_values() {
 
 #[test]
 fn test_zero() {
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     assert_eq!(atomic.load(), 0.0);
     atomic.fetch_add(1.0);
     assert!((atomic.load() - 1.0).abs() < EPSILON);
@@ -219,7 +215,7 @@ fn test_zero() {
 
 #[test]
 fn test_infinity() {
-    let atomic = AtomicF32::new(f32::INFINITY);
+    let atomic = Atomic::<f32>::new(f32::INFINITY);
     assert_eq!(atomic.load(), f32::INFINITY);
     atomic.store(f32::NEG_INFINITY);
     assert_eq!(atomic.load(), f32::NEG_INFINITY);
@@ -227,14 +223,14 @@ fn test_infinity() {
 
 #[test]
 fn test_compare_and_set_weak() {
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     assert!(atomic.compare_set_weak(1.0, 2.0).is_ok());
     assert!((atomic.load() - 2.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_compare_and_exchange_weak() {
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     let prev = atomic.compare_and_exchange_weak(1.0, 2.0);
     assert!((prev - 1.0).abs() < EPSILON);
     assert!((atomic.load() - 2.0).abs() < EPSILON);
@@ -244,7 +240,7 @@ fn test_compare_and_exchange_weak() {
 fn test_inner() {
     use std::sync::atomic::Ordering;
 
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     let bits = atomic.inner().load(Ordering::Relaxed);
     assert_eq!(f32::from_bits(bits), 1.0);
 
@@ -256,7 +252,7 @@ fn test_inner() {
 fn test_inner_cas() {
     use std::sync::atomic::Ordering;
 
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     let current_bits = atomic.inner().load(Ordering::Relaxed);
     let new_bits = 2.0f32.to_bits();
 
@@ -270,13 +266,13 @@ fn test_inner_cas() {
 
 #[test]
 fn test_nan() {
-    let atomic = AtomicF32::new(f32::NAN);
+    let atomic = Atomic::<f32>::new(f32::NAN);
     assert!(atomic.load().is_nan());
 }
 
 #[test]
 fn test_sub_negative() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_sub(-5.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 15.0).abs() < EPSILON);
@@ -284,7 +280,7 @@ fn test_sub_negative() {
 
 #[test]
 fn test_mul_negative() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_mul(-2.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - (-20.0)).abs() < EPSILON);
@@ -292,7 +288,7 @@ fn test_mul_negative() {
 
 #[test]
 fn test_div_by_zero() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_div(0.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!(atomic.load().is_infinite());
@@ -300,7 +296,7 @@ fn test_div_by_zero() {
 
 #[test]
 fn test_compare_and_set_failure_returns_actual() {
-    let atomic = AtomicF32::new(1.0);
+    let atomic = Atomic::<f32>::new(1.0);
     match atomic.compare_set(2.0, 3.0) {
         Ok(_) => panic!("Should fail"),
         Err(actual) => assert!((actual - 1.0).abs() < EPSILON),
@@ -309,7 +305,7 @@ fn test_compare_and_set_failure_returns_actual() {
 
 #[test]
 fn test_concurrent_mul() {
-    let value = Arc::new(AtomicF32::new(1.0));
+    let value = Arc::new(Atomic::<f32>::new(1.0));
     let mut handles = vec![];
 
     for _ in 0..5 {
@@ -331,7 +327,7 @@ fn test_concurrent_mul() {
 
 #[test]
 fn test_concurrent_div() {
-    let value = Arc::new(AtomicF32::new(1024.0));
+    let value = Arc::new(Atomic::<f32>::new(1024.0));
     let mut handles = vec![];
 
     for _ in 0..5 {
@@ -353,7 +349,7 @@ fn test_concurrent_div() {
 
 #[test]
 fn test_compare_and_set_weak_in_loop() {
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     let mut current = atomic.load();
     for i in 0..10 {
         loop {
@@ -369,7 +365,7 @@ fn test_compare_and_set_weak_in_loop() {
 
 #[test]
 fn test_compare_and_exchange_weak_in_loop() {
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     let mut current = atomic.load();
     for i in 0..10 {
         loop {
@@ -386,7 +382,7 @@ fn test_compare_and_exchange_weak_in_loop() {
 
 #[test]
 fn test_add_zero() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_add(0.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 10.0).abs() < EPSILON);
@@ -394,7 +390,7 @@ fn test_add_zero() {
 
 #[test]
 fn test_sub_zero() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_sub(0.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 10.0).abs() < EPSILON);
@@ -402,7 +398,7 @@ fn test_sub_zero() {
 
 #[test]
 fn test_mul_one() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_mul(1.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 10.0).abs() < EPSILON);
@@ -410,7 +406,7 @@ fn test_mul_one() {
 
 #[test]
 fn test_div_one() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let old = atomic.fetch_div(1.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 10.0).abs() < EPSILON);
@@ -418,14 +414,14 @@ fn test_div_one() {
 
 #[test]
 fn test_display() {
-    let atomic = AtomicF32::new(std::f32::consts::PI);
+    let atomic = Atomic::<f32>::new(std::f32::consts::PI);
     let display_str = format!("{}", atomic);
     assert!(display_str.contains("3.14"));
 }
 
 #[test]
 fn test_debug_false() {
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     let debug_str = format!("{:?}", atomic);
     assert!(debug_str.contains("0"));
 }
@@ -438,7 +434,7 @@ fn test_debug_false() {
 
 #[test]
 fn test_trait_atomic_comprehensive() {
-    fn test_atomic<T: Atomic<Value = f32>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<f32>) {
         atomic.store(5.0);
         assert!((atomic.load() - 5.0).abs() < EPSILON);
 
@@ -446,16 +442,16 @@ fn test_trait_atomic_comprehensive() {
         assert!((old - 5.0).abs() < EPSILON);
 
         assert!(atomic.compare_set(10.0, 15.0).is_ok());
-        assert_eq!(atomic.compare_exchange(15.0, 20.0), 15.0);
+        assert_eq!(atomic.compare_and_exchange(15.0, 20.0), 15.0);
     }
 
-    let atomic = AtomicF32::new(0.0);
+    let atomic = Atomic::<f32>::new(0.0);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_get_and_update_identity() {
-    let atomic = AtomicF32::new(42.0);
+    let atomic = Atomic::<f32>::new(42.0);
     let old = atomic.fetch_update(|x| x);
     assert!((old - 42.0).abs() < EPSILON);
     assert!((atomic.load() - 42.0).abs() < EPSILON);
@@ -463,7 +459,7 @@ fn test_get_and_update_identity() {
 
 #[test]
 fn test_compare_and_set_failure_path() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     // Try to CAS with wrong current value
     match atomic.compare_set(5.0, 15.0) {
         Ok(_) => panic!("Should have failed"),
@@ -474,15 +470,15 @@ fn test_compare_and_set_failure_path() {
 
 #[test]
 fn test_compare_and_exchange_failure_path() {
-    let atomic = AtomicF32::new(10.0);
-    let prev = atomic.compare_exchange(5.0, 15.0);
+    let atomic = Atomic::<f32>::new(10.0);
+    let prev = atomic.compare_and_exchange(5.0, 15.0);
     assert!((prev - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 10.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_compare_and_set_weak_failure_path() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     match atomic.compare_set_weak(5.0, 15.0) {
         Ok(_) => panic!("Should have failed"),
         Err(actual) => assert!((actual - 10.0).abs() < EPSILON),
@@ -492,7 +488,7 @@ fn test_compare_and_set_weak_failure_path() {
 
 #[test]
 fn test_compare_and_exchange_weak_failure_path() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let prev = atomic.compare_and_exchange_weak(5.0, 15.0);
     assert!((prev - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 10.0).abs() < EPSILON);
@@ -500,15 +496,15 @@ fn test_compare_and_exchange_weak_failure_path() {
 
 #[test]
 fn test_compare_and_exchange_success_path() {
-    let atomic = AtomicF32::new(10.0);
-    let prev = atomic.compare_exchange(10.0, 15.0);
+    let atomic = Atomic::<f32>::new(10.0);
+    let prev = atomic.compare_and_exchange(10.0, 15.0);
     assert!((prev - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 15.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_compare_and_exchange_weak_success_path() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
     let prev = atomic.compare_and_exchange_weak(10.0, 15.0);
     assert!((prev - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 15.0).abs() < EPSILON);
@@ -516,7 +512,7 @@ fn test_compare_and_exchange_weak_success_path() {
 
 #[test]
 fn test_concurrent_add_high_contention() {
-    let atomic = Arc::new(AtomicF32::new(0.0));
+    let atomic = Arc::new(Atomic::<f32>::new(0.0));
     let mut handles = vec![];
 
     // High contention: many threads adding simultaneously
@@ -541,7 +537,7 @@ fn test_concurrent_add_high_contention() {
 
 #[test]
 fn test_concurrent_sub_high_contention() {
-    let atomic = Arc::new(AtomicF32::new(1000.0));
+    let atomic = Arc::new(Atomic::<f32>::new(1000.0));
     let mut handles = vec![];
 
     // High contention: many threads subtracting simultaneously
@@ -566,7 +562,7 @@ fn test_concurrent_sub_high_contention() {
 
 #[test]
 fn test_concurrent_mul_and_div() {
-    let atomic = Arc::new(AtomicF32::new(100.0));
+    let atomic = Arc::new(Atomic::<f32>::new(100.0));
     let mut handles = vec![];
 
     // Some threads multiply, some divide
@@ -593,7 +589,7 @@ fn test_concurrent_mul_and_div() {
 
 #[test]
 fn test_concurrent_mul_extreme_contention() {
-    let atomic = Arc::new(AtomicF32::new(1.0));
+    let atomic = Arc::new(Atomic::<f32>::new(1.0));
     let mut handles = vec![];
 
     // Very high contention: 30 threads, each doing 20 multiplications
@@ -618,7 +614,7 @@ fn test_concurrent_mul_extreme_contention() {
 
 #[test]
 fn test_concurrent_div_extreme_contention() {
-    let atomic = Arc::new(AtomicF32::new(1000000.0));
+    let atomic = Arc::new(Atomic::<f32>::new(1000000.0));
     let mut handles = vec![];
 
     // Very high contention: 30 threads, each doing 20 divisions
@@ -643,7 +639,7 @@ fn test_concurrent_div_extreme_contention() {
 
 #[test]
 fn test_concurrent_get_and_update_contention() {
-    let atomic = Arc::new(AtomicF32::new(0.0));
+    let atomic = Arc::new(Atomic::<f32>::new(0.0));
     let mut handles = vec![];
 
     for _ in 0..10 {
@@ -666,113 +662,113 @@ fn test_concurrent_get_and_update_contention() {
 }
 
 // ============================================================================
-// AtomicNumber trait tests
+// Numeric operation tests
 // ============================================================================
 
 #[test]
 fn test_atomic_number_fetch_add() {
-    let atomic = AtomicF32::new(10.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_add(&atomic, 5.0);
+    let atomic = Atomic::<f32>::new(10.0);
+    let old = atomic.fetch_add(5.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 15.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_add_negative() {
-    let atomic = AtomicF32::new(10.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_add(&atomic, -3.0);
+    let atomic = Atomic::<f32>::new(10.0);
+    let old = atomic.fetch_add(-3.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 7.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_sub() {
-    let atomic = AtomicF32::new(10.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_sub(&atomic, 3.0);
+    let atomic = Atomic::<f32>::new(10.0);
+    let old = atomic.fetch_sub(3.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 7.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_sub_negative() {
-    let atomic = AtomicF32::new(10.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_sub(&atomic, -5.0);
+    let atomic = Atomic::<f32>::new(10.0);
+    let old = atomic.fetch_sub(-5.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - 15.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_mul() {
-    let atomic = AtomicF32::new(3.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_mul(&atomic, 4.0);
+    let atomic = Atomic::<f32>::new(3.0);
+    let old = atomic.fetch_mul(4.0);
     assert!((old - 3.0).abs() < EPSILON);
     assert!((atomic.load() - 12.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_mul_by_zero() {
-    let atomic = AtomicF32::new(5.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_mul(&atomic, 0.0);
+    let atomic = Atomic::<f32>::new(5.0);
+    let old = atomic.fetch_mul(0.0);
     assert!((old - 5.0).abs() < EPSILON);
     assert!((atomic.load() - 0.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_mul_by_negative() {
-    let atomic = AtomicF32::new(3.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_mul(&atomic, -2.0);
+    let atomic = Atomic::<f32>::new(3.0);
+    let old = atomic.fetch_mul(-2.0);
     assert!((old - 3.0).abs() < EPSILON);
     assert!((atomic.load() - (-6.0)).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_div() {
-    let atomic = AtomicF32::new(12.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_div(&atomic, 4.0);
+    let atomic = Atomic::<f32>::new(12.0);
+    let old = atomic.fetch_div(4.0);
     assert!((old - 12.0).abs() < EPSILON);
     assert!((atomic.load() - 3.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_div_by_negative() {
-    let atomic = AtomicF32::new(12.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_div(&atomic, -4.0);
+    let atomic = Atomic::<f32>::new(12.0);
+    let old = atomic.fetch_div(-4.0);
     assert!((old - 12.0).abs() < EPSILON);
     assert!((atomic.load() - (-3.0)).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_fetch_div_fractional() {
-    let atomic = AtomicF32::new(10.0);
-    let old = <AtomicF32 as AtomicNumber>::fetch_div(&atomic, 3.0);
+    let atomic = Atomic::<f32>::new(10.0);
+    let old = atomic.fetch_div(3.0);
     assert!((old - 10.0).abs() < EPSILON);
     assert!((atomic.load() - (10.0 / 3.0)).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_operations_chain() {
-    let atomic = AtomicF32::new(10.0);
+    let atomic = Atomic::<f32>::new(10.0);
 
     // 10.0 + 5.0 = 15.0
-    <AtomicF32 as AtomicNumber>::fetch_add(&atomic, 5.0);
+    atomic.fetch_add(5.0);
     assert!((atomic.load() - 15.0).abs() < EPSILON);
 
     // 15.0 * 2.0 = 30.0
-    <AtomicF32 as AtomicNumber>::fetch_mul(&atomic, 2.0);
+    atomic.fetch_mul(2.0);
     assert!((atomic.load() - 30.0).abs() < EPSILON);
 
     // 30.0 - 10.0 = 20.0
-    <AtomicF32 as AtomicNumber>::fetch_sub(&atomic, 10.0);
+    atomic.fetch_sub(10.0);
     assert!((atomic.load() - 20.0).abs() < EPSILON);
 
     // 20.0 / 4.0 = 5.0
-    <AtomicF32 as AtomicNumber>::fetch_div(&atomic, 4.0);
+    atomic.fetch_div(4.0);
     assert!((atomic.load() - 5.0).abs() < EPSILON);
 }
 
 #[test]
 fn test_atomic_number_concurrent_operations() {
-    let atomic = Arc::new(AtomicF32::new(0.0));
+    let atomic = Arc::new(Atomic::<f32>::new(0.0));
     let mut handles = vec![];
 
     // Start multiple threads for concurrent operations
@@ -780,9 +776,9 @@ fn test_atomic_number_concurrent_operations() {
         let atomic = Arc::clone(&atomic);
         let handle = thread::spawn(move || {
             if i % 2 == 0 {
-                <AtomicF32 as AtomicNumber>::fetch_add(&atomic, 1.0);
+                atomic.fetch_add(1.0);
             } else {
-                <AtomicF32 as AtomicNumber>::fetch_sub(&atomic, 0.5);
+                atomic.fetch_sub(0.5);
             }
         });
         handles.push(handle);

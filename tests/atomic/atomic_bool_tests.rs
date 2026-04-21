@@ -7,36 +7,33 @@
  *
  ******************************************************************************/
 
-use qubit_atomic::atomic::{
-    Atomic,
-    AtomicBool,
-};
+use qubit_atomic::Atomic;
 use std::sync::Arc;
 use std::thread;
 
 #[test]
 fn test_new() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     assert!(atomic.load());
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(!atomic.load());
 }
 
 #[test]
 fn test_default() {
-    let atomic = AtomicBool::default();
+    let atomic = Atomic::<bool>::default();
     assert!(!atomic.load());
 }
 
 #[test]
 fn test_from() {
-    let atomic = AtomicBool::from(true);
+    let atomic = Atomic::<bool>::from(true);
     assert!(atomic.load());
 }
 
 #[test]
 fn test_get_set() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     atomic.store(true);
     assert!(atomic.load());
     atomic.store(false);
@@ -45,7 +42,7 @@ fn test_get_set() {
 
 #[test]
 fn test_swap() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     let old = atomic.swap(true);
     assert!(!old);
     assert!(atomic.load());
@@ -53,14 +50,14 @@ fn test_swap() {
 
 #[test]
 fn test_compare_and_set_success() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(atomic.compare_set(false, true).is_ok());
     assert!(atomic.load());
 }
 
 #[test]
 fn test_compare_and_set_failure() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     match atomic.compare_set(true, false) {
         Ok(_) => panic!("Should fail"),
         Err(actual) => assert!(!actual),
@@ -70,19 +67,19 @@ fn test_compare_and_set_failure() {
 
 #[test]
 fn test_compare_and_exchange() {
-    let atomic = AtomicBool::new(false);
-    let prev = atomic.compare_exchange(false, true);
+    let atomic = Atomic::<bool>::new(false);
+    let prev = atomic.compare_and_exchange(false, true);
     assert!(!prev);
     assert!(atomic.load());
 
-    let prev = atomic.compare_exchange(false, false);
+    let prev = atomic.compare_and_exchange(false, false);
     assert!(prev);
     assert!(atomic.load());
 }
 
 #[test]
 fn test_get_and_set() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     let old = atomic.fetch_set();
     assert!(!old);
     assert!(atomic.load());
@@ -90,7 +87,7 @@ fn test_get_and_set() {
 
 #[test]
 fn test_get_and_clear() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     let old = atomic.fetch_clear();
     assert!(old);
     assert!(!atomic.load());
@@ -98,7 +95,7 @@ fn test_get_and_clear() {
 
 #[test]
 fn test_get_and_negate() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(!atomic.fetch_not());
     assert!(atomic.load());
     assert!(atomic.fetch_not());
@@ -107,7 +104,7 @@ fn test_get_and_negate() {
 
 #[test]
 fn test_get_and_logical_and() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     assert!(atomic.fetch_and(false));
     assert!(!atomic.load());
 
@@ -118,7 +115,7 @@ fn test_get_and_logical_and() {
 
 #[test]
 fn test_get_and_logical_or() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(!atomic.fetch_or(true));
     assert!(atomic.load());
 
@@ -129,7 +126,7 @@ fn test_get_and_logical_or() {
 
 #[test]
 fn test_get_and_logical_xor() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(!atomic.fetch_xor(true));
     assert!(atomic.load());
 
@@ -139,7 +136,7 @@ fn test_get_and_logical_xor() {
 
 #[test]
 fn test_compare_and_set_if_false() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(atomic.set_if_false(true).is_ok());
     assert!(atomic.load());
 
@@ -149,7 +146,7 @@ fn test_compare_and_set_if_false() {
 
 #[test]
 fn test_compare_and_set_if_true() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     assert!(atomic.set_if_true(false).is_ok());
     assert!(!atomic.load());
 
@@ -159,7 +156,7 @@ fn test_compare_and_set_if_true() {
 
 #[test]
 fn test_concurrent_toggle() {
-    let flag = Arc::new(AtomicBool::new(false));
+    let flag = Arc::new(Atomic::<bool>::new(false));
     let mut handles = vec![];
 
     for _ in 0..10 {
@@ -182,7 +179,7 @@ fn test_concurrent_toggle() {
 
 #[test]
 fn test_concurrent_set_once() {
-    let flag = Arc::new(AtomicBool::new(false));
+    let flag = Arc::new(Atomic::<bool>::new(false));
     let mut handles = vec![];
     let success_count = Arc::new(std::sync::atomic::AtomicUsize::new(0));
 
@@ -208,20 +205,20 @@ fn test_concurrent_set_once() {
 
 #[test]
 fn test_trait_atomic() {
-    fn test_atomic<T: Atomic<Value = bool>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<bool>) {
         atomic.store(true);
         assert!(atomic.load());
         let old = atomic.swap(false);
         assert!(old);
     }
 
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_debug_display() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     let debug_str = format!("{:?}", atomic);
     assert!(debug_str.contains("true"));
     let display_str = format!("{}", atomic);
@@ -230,14 +227,14 @@ fn test_debug_display() {
 
 #[test]
 fn test_compare_and_set_weak_success() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(atomic.compare_set_weak(false, true).is_ok());
     assert!(atomic.load());
 }
 
 #[test]
 fn test_compare_and_set_weak_failure() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     match atomic.compare_set_weak(true, false) {
         Ok(_) => panic!("Should fail"),
         Err(actual) => assert!(!actual),
@@ -247,7 +244,7 @@ fn test_compare_and_set_weak_failure() {
 
 #[test]
 fn test_compare_and_exchange_weak() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     let prev = atomic.compare_and_exchange_weak(false, true);
     assert!(!prev);
     assert!(atomic.load());
@@ -261,7 +258,7 @@ fn test_compare_and_exchange_weak() {
 fn test_inner() {
     use std::sync::atomic::Ordering;
 
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     atomic.inner().store(true, Ordering::Relaxed);
     assert!(atomic.inner().load(Ordering::Relaxed));
 
@@ -271,7 +268,7 @@ fn test_inner() {
 
 #[test]
 fn test_get_and_set_already_true() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     let old = atomic.fetch_set();
     assert!(old);
     assert!(atomic.load());
@@ -279,7 +276,7 @@ fn test_get_and_set_already_true() {
 
 #[test]
 fn test_get_and_clear_already_false() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     let old = atomic.fetch_clear();
     assert!(!old);
     assert!(!atomic.load());
@@ -287,56 +284,56 @@ fn test_get_and_clear_already_false() {
 
 #[test]
 fn test_get_and_logical_and_both_false() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(!atomic.fetch_and(false));
     assert!(!atomic.load());
 }
 
 #[test]
 fn test_get_and_logical_and_false_true() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(!atomic.fetch_and(true));
     assert!(!atomic.load());
 }
 
 #[test]
 fn test_get_and_logical_or_both_true() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     assert!(atomic.fetch_or(true));
     assert!(atomic.load());
 }
 
 #[test]
 fn test_get_and_logical_or_true_false() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     assert!(atomic.fetch_or(false));
     assert!(atomic.load());
 }
 
 #[test]
 fn test_get_and_logical_xor_both_false() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     assert!(!atomic.fetch_xor(false));
     assert!(!atomic.load());
 }
 
 #[test]
 fn test_get_and_logical_xor_both_true() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     assert!(atomic.fetch_xor(true));
     assert!(!atomic.load());
 }
 
 #[test]
 fn test_get_and_logical_xor_true_false() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     assert!(atomic.fetch_xor(false));
     assert!(atomic.load());
 }
 
 #[test]
 fn test_compare_and_set_if_false_already_true() {
-    let atomic = AtomicBool::new(true);
+    let atomic = Atomic::<bool>::new(true);
     match atomic.set_if_false(false) {
         Ok(_) => panic!("Should fail"),
         Err(actual) => assert!(actual),
@@ -346,7 +343,7 @@ fn test_compare_and_set_if_false_already_true() {
 
 #[test]
 fn test_compare_and_set_if_true_already_false() {
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     match atomic.set_if_true(true) {
         Ok(_) => panic!("Should fail"),
         Err(actual) => assert!(!actual),
@@ -356,69 +353,69 @@ fn test_compare_and_set_if_true_already_false() {
 
 #[test]
 fn test_trait_atomic_compare_and_set() {
-    fn test_atomic<T: Atomic<Value = bool>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<bool>) {
         assert!(atomic.compare_set(false, true).is_ok());
         assert!(atomic.load());
         assert!(atomic.compare_set(false, false).is_err());
     }
 
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_trait_atomic_compare_and_exchange() {
-    fn test_atomic<T: Atomic<Value = bool>>(atomic: &T) {
-        let prev = atomic.compare_exchange(false, true);
+    fn test_atomic(atomic: &Atomic<bool>) {
+        let prev = atomic.compare_and_exchange(false, true);
         assert!(!prev);
         assert!(atomic.load());
     }
 
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_trait_atomic_compare_set_weak() {
-    fn test_atomic<T: Atomic<Value = bool>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<bool>) {
         atomic.store(false);
         assert!(atomic.compare_set_weak(false, true).is_ok());
         assert!(atomic.load());
     }
 
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_trait_atomic_compare_exchange_weak() {
-    fn test_atomic<T: Atomic<Value = bool>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<bool>) {
         atomic.store(false);
-        let prev = atomic.compare_exchange_weak(false, true);
+        let prev = atomic.compare_and_exchange_weak(false, true);
         assert!(!prev);
         assert!(atomic.load());
     }
 
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_trait_atomic_fetch_update() {
-    fn test_atomic<T: Atomic<Value = bool>>(atomic: &T) {
+    fn test_atomic(atomic: &Atomic<bool>) {
         atomic.store(false);
         let old = atomic.fetch_update(|x| !x);
         assert!(!old);
         assert!(atomic.load());
     }
 
-    let atomic = AtomicBool::new(false);
+    let atomic = Atomic::<bool>::new(false);
     test_atomic(&atomic);
 }
 
 #[test]
 fn test_concurrent_compare_and_set_weak() {
-    let flag = Arc::new(AtomicBool::new(false));
+    let flag = Arc::new(Atomic::<bool>::new(false));
     let mut handles = vec![];
     let success_count = Arc::new(std::sync::atomic::AtomicUsize::new(0));
 

@@ -7,4 +7,11 @@
  *
  ******************************************************************************/
 
-test_atomic_integer!(i8, atomic_i8_tests);
+//! Macros used to generate repetitive atomic primitive implementations.
+
+#[macro_use]
+mod impl_atomic_value;
+#[macro_use]
+mod impl_atomic_integer_value;
+#[macro_use]
+mod impl_atomic_number;

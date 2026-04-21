@@ -10,8 +10,9 @@
 //!
 //! User-friendly atomic operations wrapper providing JDK-like atomic API.
 //!
-//! This crate provides easy-to-use atomic types with reasonable default memory
-//! orderings, similar to Java's `java.util.concurrent.atomic` package.
+//! This crate provides an easy-to-use generic atomic wrapper with reasonable
+//! default memory orderings, similar to Java's
+//! `java.util.concurrent.atomic` package.
 //!
 //! ## Design Goals
 //!
@@ -23,28 +24,26 @@
 //!
 //! ## Features
 //!
-//! - Boolean atomic type: `AtomicBool`
-//! - Integer atomic types: `AtomicI8`, `AtomicU8`, `AtomicI16`, `AtomicU16`,
-//!   `AtomicI32`, `AtomicU32`, `AtomicI64`, `AtomicU64`, `AtomicIsize`,
-//!   `AtomicUsize`
-//! - Counter atomic types: `AtomicCounter`, `AtomicSignedCounter`
-//! - Floating-point atomic types: `AtomicF32`, `AtomicF64`
+//! - Primitive atomic values: `Atomic<bool>`, `Atomic<i32>`,
+//!   `Atomic<u64>`, `Atomic<usize>`, `Atomic<f32>`, and other supported
+//!   primitive types
+//! - Counter atomic types: `AtomicCount`, `AtomicSignedCount`
 //! - Reference atomic type: `AtomicRef<T>`
 //!
 //! ## Example
 //!
 //! ```rust
-//! use qubit_atomic::{AtomicI32, Atomic, AtomicNumber};
+//! use qubit_atomic::Atomic;
 //! use std::sync::Arc;
 //! use std::thread;
 //!
 //! // Basic usage
-//! let counter = AtomicI32::new(0);
+//! let counter = Atomic::new(0);
 //! counter.fetch_inc();
 //! assert_eq!(counter.load(), 1);
 //!
 //! // Concurrent usage
-//! let counter = Arc::new(AtomicI32::new(0));
+//! let counter = Arc::new(Atomic::new(0));
 //! let mut handles = vec![];
 //!
 //! for _ in 0..10 {
@@ -71,26 +70,8 @@
 #![deny(missing_docs)]
 #![deny(unsafe_op_in_unsafe_fn)]
 
+/// Atomic value types and reference/counting helpers.
 pub mod atomic;
 
-// Re-export all atomic types and traits
-pub use atomic::{
-    Atomic,
-    AtomicBool,
-    AtomicCounter,
-    AtomicF32,
-    AtomicF64,
-    AtomicI8,
-    AtomicI16,
-    AtomicI32,
-    AtomicI64,
-    AtomicIsize,
-    AtomicNumber,
-    AtomicRef,
-    AtomicSignedCounter,
-    AtomicU8,
-    AtomicU16,
-    AtomicU32,
-    AtomicU64,
-    AtomicUsize,
-};
+// Re-export the public atomic API.
+pub use atomic::{Atomic, AtomicCount, AtomicRef, AtomicSignedCount};

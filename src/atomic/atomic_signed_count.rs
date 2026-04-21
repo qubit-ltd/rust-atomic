@@ -7,7 +7,7 @@
  *
  ******************************************************************************/
 
-//! # Atomic Signed Counter
+//! # Atomic Signed Count
 //!
 //! Provides an atomic counter for values that may legitimately become
 //! negative.
@@ -17,10 +17,7 @@
 //! Haixing Hu
 
 use std::fmt;
-use std::sync::atomic::{
-    AtomicIsize as StdAtomicIsize,
-    Ordering,
-};
+use std::sync::atomic::{AtomicIsize as StdAtomicIsize, Ordering};
 
 /// A signed atomic counter with synchronization-oriented operations.
 ///
@@ -30,9 +27,9 @@ use std::sync::atomic::{
 /// scheduling offsets.
 ///
 /// For counters that must never be negative, prefer
-/// [`AtomicCounter`](crate::AtomicCounter). For pure metrics or statistics,
+/// [`AtomicCount`](crate::AtomicCount). For pure metrics or statistics,
 /// prefer the regular atomic integer types such as
-/// [`AtomicIsize`](crate::AtomicIsize).
+/// [`Atomic<isize>`](crate::Atomic).
 ///
 /// This counter never wraps. Operations that would overflow the signed range
 /// panic. Use [`try_add`](Self::try_add) or [`try_sub`](Self::try_sub) when
@@ -41,9 +38,9 @@ use std::sync::atomic::{
 /// # Example
 ///
 /// ```rust
-/// use qubit_atomic::AtomicSignedCounter;
+/// use qubit_atomic::AtomicSignedCount;
 ///
-/// let backlog_delta = AtomicSignedCounter::zero();
+/// let backlog_delta = AtomicSignedCount::zero();
 ///
 /// assert_eq!(backlog_delta.add(5), 5);
 /// assert_eq!(backlog_delta.sub(8), -3);
@@ -54,11 +51,12 @@ use std::sync::atomic::{
 ///
 /// Haixing Hu
 #[repr(transparent)]
-pub struct AtomicSignedCounter {
+pub struct AtomicSignedCount {
+    /// Standard-library atomic storage for the signed counter value.
     inner: StdAtomicIsize,
 }
 
-impl AtomicSignedCounter {
+impl AtomicSignedCount {
     /// Creates a new signed atomic counter.
     ///
     /// # Parameters
@@ -72,9 +70,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(-3);
+    /// let counter = AtomicSignedCount::new(-3);
     /// assert_eq!(counter.get(), -3);
     /// ```
     #[inline]
@@ -93,9 +91,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::zero();
+    /// let counter = AtomicSignedCount::zero();
     /// assert!(counter.is_zero());
     /// ```
     #[inline]
@@ -112,9 +110,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(-7);
+    /// let counter = AtomicSignedCount::new(-7);
     /// assert_eq!(counter.get(), -7);
     /// ```
     #[inline]
@@ -131,9 +129,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::zero();
+    /// let counter = AtomicSignedCount::zero();
     /// assert!(counter.is_zero());
     /// ```
     #[inline]
@@ -150,9 +148,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(1);
+    /// let counter = AtomicSignedCount::new(1);
     /// assert!(counter.is_positive());
     /// ```
     #[inline]
@@ -169,9 +167,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(-1);
+    /// let counter = AtomicSignedCount::new(-1);
     /// assert!(counter.is_negative());
     /// ```
     #[inline]
@@ -192,9 +190,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::zero();
+    /// let counter = AtomicSignedCount::zero();
     /// assert_eq!(counter.inc(), 1);
     /// ```
     #[inline]
@@ -215,9 +213,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::zero();
+    /// let counter = AtomicSignedCount::zero();
     /// assert_eq!(counter.dec(), -1);
     /// ```
     #[inline]
@@ -242,9 +240,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(2);
+    /// let counter = AtomicSignedCount::new(2);
     /// assert_eq!(counter.add(-5), -3);
     /// ```
     #[inline]
@@ -267,9 +265,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(-2);
+    /// let counter = AtomicSignedCount::new(-2);
     /// assert_eq!(counter.try_add(5), Some(3));
     /// ```
     #[inline]
@@ -294,9 +292,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(2);
+    /// let counter = AtomicSignedCount::new(2);
     /// assert_eq!(counter.sub(5), -3);
     /// ```
     #[inline]
@@ -319,9 +317,9 @@ impl AtomicSignedCounter {
     /// # Example
     ///
     /// ```rust
-    /// use qubit_atomic::AtomicSignedCounter;
+    /// use qubit_atomic::AtomicSignedCount;
     ///
-    /// let counter = AtomicSignedCounter::new(2);
+    /// let counter = AtomicSignedCount::new(2);
     /// assert_eq!(counter.try_sub(5), Some(-3));
     /// ```
     #[inline]
@@ -362,30 +360,62 @@ impl AtomicSignedCounter {
     }
 }
 
-impl Default for AtomicSignedCounter {
+impl Default for AtomicSignedCount {
+    /// Creates a zero-valued signed atomic counter.
+    ///
+    /// # Returns
+    ///
+    /// A signed counter whose current value is zero.
     #[inline]
     fn default() -> Self {
         Self::zero()
     }
 }
 
-impl From<isize> for AtomicSignedCounter {
+impl From<isize> for AtomicSignedCount {
+    /// Converts an initial counter value into an [`AtomicSignedCount`].
+    ///
+    /// # Parameters
+    ///
+    /// * `value` - The initial counter value.
+    ///
+    /// # Returns
+    ///
+    /// A signed counter initialized to `value`.
     #[inline]
     fn from(value: isize) -> Self {
         Self::new(value)
     }
 }
 
-impl fmt::Debug for AtomicSignedCounter {
+impl fmt::Debug for AtomicSignedCount {
+    /// Formats the current counter value for debugging.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - The formatter receiving the debug representation.
+    ///
+    /// # Returns
+    ///
+    /// A formatting result from the formatter.
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("AtomicSignedCounter")
+        f.debug_struct("AtomicSignedCount")
             .field("value", &self.get())
             .finish()
     }
 }
 
-impl fmt::Display for AtomicSignedCounter {
+impl fmt::Display for AtomicSignedCount {
+    /// Formats the current counter value with decimal display formatting.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - The formatter receiving the displayed value.
+    ///
+    /// # Returns
+    ///
+    /// A formatting result from the formatter.
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.get())

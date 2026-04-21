@@ -7,9 +7,9 @@
  *
  ******************************************************************************/
 
-//! # Atomic 64-bit Unsigned Integer
+//! # Atomic 128-bit Signed Integer
 //!
-//! Provides an easy-to-use atomic 64-bit unsigned integer type with sensible
+//! Provides an easy-to-use atomic 128-bit signed integer type with sensible
 //! default memory orderings.
 //!
 //! # Author
@@ -19,8 +19,8 @@
 use std::sync::atomic::Ordering;
 
 impl_atomic_number!(
-    AtomicU64,
-    std::sync::atomic::AtomicU64,
-    u64,
-    "64-bit unsigned integer"
+    AtomicI128,
+    portable_atomic::AtomicI128,
+    i128,
+    "128-bit signed integer"
 );

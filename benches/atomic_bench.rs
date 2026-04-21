@@ -10,7 +10,7 @@
 //!
 //! Benchmarks for atomic operations to measure performance.
 
-use qubit_atomic::AtomicI32;
+use qubit_atomic::Atomic;
 use std::sync::Arc;
 use std::thread;
 
@@ -19,7 +19,7 @@ fn main() {
 
     // Benchmark 1: Single-threaded increment
     println!("1. Single-threaded Increment (1,000,000 operations):");
-    let counter = AtomicI32::new(0);
+    let counter = Atomic::<i32>::new(0);
     let start = std::time::Instant::now();
     for _ in 0..1_000_000 {
         counter.fetch_inc();
@@ -33,7 +33,7 @@ fn main() {
 
     // Benchmark 2: Multi-threaded increment
     println!("\n2. Multi-threaded Increment (10 threads, 100,000 ops each):");
-    let counter = Arc::new(AtomicI32::new(0));
+    let counter = Arc::new(Atomic::<i32>::new(0));
     let start = std::time::Instant::now();
     let mut handles = vec![];
 
@@ -61,7 +61,7 @@ fn main() {
 
     // Benchmark 3: Compare-and-swap
     println!("\n3. Compare-and-Swap (1,000,000 operations):");
-    let counter = AtomicI32::new(0);
+    let counter = Atomic::<i32>::new(0);
     let start = std::time::Instant::now();
     for i in 0..1_000_000 {
         while counter.compare_set(i, i + 1).is_err() {
@@ -77,7 +77,7 @@ fn main() {
 
     // Benchmark 4: Functional update
     println!("\n4. Functional Update (1,000,000 operations):");
-    let counter = AtomicI32::new(0);
+    let counter = Atomic::<i32>::new(0);
     let start = std::time::Instant::now();
     for _ in 0..1_000_000 {
         counter.fetch_update(|x| x + 1);
@@ -91,7 +91,7 @@ fn main() {
 
     // Benchmark 5: Read operations
     println!("\n5. Read Operations (10,000,000 operations):");
-    let counter = AtomicI32::new(42);
+    let counter = Atomic::<i32>::new(42);
     let start = std::time::Instant::now();
     let mut sum = 0i64;
     for _ in 0..10_000_000 {

@@ -16,7 +16,6 @@
 //!
 //! Haixing Hu
 
-use std::fmt;
 use std::sync::atomic::Ordering;
 
 impl_atomic_number!(

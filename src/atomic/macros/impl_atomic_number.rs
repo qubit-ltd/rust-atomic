@@ -70,11 +70,11 @@ macro_rules! impl_atomic_number {
         /// # Example
         ///
         /// ```rust
-        #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+        /// use qubit_atomic::Atomic;
         /// use std::sync::Arc;
         /// use std::thread;
         ///
-        #[doc = concat!("let counter = Arc::new(", stringify!($name), "::new(0));")]
+        #[doc = concat!("let counter = Arc::new(Atomic::<", stringify!($value_type), ">::new(0));")]
         /// let mut handles = vec![];
         ///
         /// for _ in 0..10 {
@@ -99,6 +99,7 @@ macro_rules! impl_atomic_number {
         /// Haixing Hu
         #[repr(transparent)]
         pub struct $name {
+            /// Backend atomic integer used to store the value.
             inner: $inner_type,
         }
 
@@ -109,12 +110,16 @@ macro_rules! impl_atomic_number {
             ///
             /// * `value` - The initial value.
             ///
+            /// # Returns
+            ///
+            /// An atomic number initialized to `value`.
+            ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(42);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(42);")]
             /// assert_eq!(atomic.load(), 42);
             /// ```
             #[inline]
@@ -144,9 +149,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(42);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(42);")]
             /// assert_eq!(atomic.load(), 42);
             /// ```
             #[inline]
@@ -174,9 +179,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(0);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(0);")]
             /// atomic.store(42);
             /// assert_eq!(atomic.load(), 42);
             /// ```
@@ -210,9 +215,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.swap(20);
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 20);
@@ -246,14 +251,19 @@ macro_rules! impl_atomic_number {
             ///
             /// # Returns
             ///
-            /// `Ok(())` on success, or `Err(actual)` on failure.
+            /// `Ok(())` when the value was replaced.
+            ///
+            /// # Errors
+            ///
+            /// Returns `Err(actual)` with the observed value when the
+            /// comparison fails. In that case, `new` is not stored.
             ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// assert!(atomic.compare_set(10, 20).is_ok());
             /// assert_eq!(atomic.load(), 20);
             /// ```
@@ -288,14 +298,20 @@ macro_rules! impl_atomic_number {
             ///
             /// # Returns
             ///
-            /// `Ok(())` on success, or `Err(actual)` on failure.
+            /// `Ok(())` when the value was replaced.
+            ///
+            /// # Errors
+            ///
+            /// Returns `Err(actual)` with the observed value when the
+            /// comparison fails, including possible spurious failures. In
+            /// that case, `new` is not stored.
             ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let mut current = atomic.load();
             /// loop {
             ///     match atomic.compare_set_weak(current, current + 1) {
@@ -338,14 +354,16 @@ macro_rules! impl_atomic_number {
             ///
             /// # Returns
             ///
-            /// The value before the operation.
+            /// The value observed before the operation completed. If the
+            /// returned value equals `current`, the exchange succeeded;
+            /// otherwise it is the actual value that prevented the exchange.
             ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let prev = atomic.compare_and_exchange(10, 20);
             /// assert_eq!(prev, 10);
             /// assert_eq!(atomic.load(), 20);
@@ -382,19 +400,23 @@ macro_rules! impl_atomic_number {
             ///
             /// # Returns
             ///
-            /// The value before the operation.
+            /// The value observed before the operation completed. Because
+            /// this operation may fail spuriously, a returned value equal to
+            /// `current` does not by itself prove that `new` was stored; use
+            /// `compare_set_weak` when the caller needs an explicit success
+            /// indicator.
             ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let mut current = atomic.load();
             /// loop {
             ///     let prev =
             ///         atomic.compare_and_exchange_weak(current, current + 5);
-            ///     if prev == current {
+            ///     if atomic.load() == current + 5 {
             ///         break;
             ///     }
             ///     current = prev;
@@ -441,9 +463,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.fetch_inc();
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 11);
@@ -464,9 +486,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.fetch_dec();
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 9);
@@ -496,9 +518,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.fetch_add(5);
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 15);
@@ -523,9 +545,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.fetch_sub(3);
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 7);
@@ -554,23 +576,16 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.fetch_mul(3);
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 30);
             /// ```
             #[inline]
             pub fn fetch_mul(&self, factor: $value_type) -> $value_type {
-                let mut current = self.load();
-                loop {
-                    let new = current.wrapping_mul(factor);
-                    match self.compare_set(current, new) {
-                        Ok(_) => return current,
-                        Err(actual) => current = actual,
-                    }
-                }
+                self.fetch_update(|current| current.wrapping_mul(factor))
             }
 
             /// Divides the value by a divisor, returning the old value.
@@ -596,9 +611,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(30);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(30);")]
             /// let old = atomic.fetch_div(3);
             /// assert_eq!(old, 30);
             /// assert_eq!(atomic.load(), 10);
@@ -606,14 +621,7 @@ macro_rules! impl_atomic_number {
             #[inline]
             pub fn fetch_div(&self, divisor: $value_type) -> $value_type {
                 assert!(divisor != 0, "division by zero");
-                let mut current = self.load();
-                loop {
-                    let new = current.wrapping_div(divisor);
-                    match self.compare_set(current, new) {
-                        Ok(_) => return current,
-                        Err(actual) => current = actual,
-                    }
-                }
+                self.fetch_update(|current| current.wrapping_div(divisor))
             }
 
 
@@ -644,9 +652,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(0b1111);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(0b1111);")]
             /// let old = atomic.fetch_and(0b1100);
             /// assert_eq!(old, 0b1111);
             /// assert_eq!(atomic.load(), 0b1100);
@@ -671,9 +679,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(0b1100);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(0b1100);")]
             /// let old = atomic.fetch_or(0b0011);
             /// assert_eq!(old, 0b1100);
             /// assert_eq!(atomic.load(), 0b1111);
@@ -698,9 +706,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(0b1100);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(0b1100);")]
             /// let old = atomic.fetch_xor(0b0110);
             /// assert_eq!(old, 0b1100);
             /// assert_eq!(atomic.load(), 0b1010);
@@ -722,10 +730,10 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
             #[doc = concat!("let value: ", stringify!($value_type), " = 42;")]
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(value);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(value);")]
             /// let old = atomic.fetch_not();
             /// assert_eq!(old, value);
             /// assert_eq!(atomic.load(), !value);
@@ -755,12 +763,15 @@ macro_rules! impl_atomic_number {
             ///
             /// The old value before the update.
             ///
+            /// The closure may be called more than once when concurrent
+            /// updates cause CAS retries.
+            ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.fetch_update(|x| x * 2);
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 20);
@@ -795,12 +806,15 @@ macro_rules! impl_atomic_number {
             ///
             /// The old value before the accumulation.
             ///
+            /// The closure may be called more than once when concurrent
+            /// updates cause CAS retries.
+            ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// let old = atomic.fetch_accumulate(5, |a, b| a + b);
             /// assert_eq!(old, 10);
             /// assert_eq!(atomic.load(), 15);
@@ -852,9 +866,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// atomic.fetch_max(20);
             /// assert_eq!(atomic.load(), 20);
             ///
@@ -882,9 +896,9 @@ macro_rules! impl_atomic_number {
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(10);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(10);")]
             /// atomic.fetch_min(5);
             /// assert_eq!(atomic.load(), 5);
             ///
@@ -905,15 +919,15 @@ macro_rules! impl_atomic_number {
             ///
             /// # Returns
             ///
-            #[doc = concat!("A reference to the underlying `std::sync::atomic::", stringify!($inner_type), "`.")]
+            #[doc = concat!("A reference to the underlying backend atomic type `", stringify!($inner_type), "`.")]
             ///
             /// # Example
             ///
             /// ```rust
-            #[doc = concat!("use qubit_atomic::", stringify!($name), ";")]
+            /// use qubit_atomic::Atomic;
             /// use std::sync::atomic::Ordering;
             ///
-            #[doc = concat!("let atomic = ", stringify!($name), "::new(0);")]
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(0);")]
             /// atomic.inner().store(42, Ordering::Relaxed);
             /// assert_eq!(atomic.inner().load(Ordering::Relaxed), 42);
             /// ```
@@ -923,12 +937,10 @@ macro_rules! impl_atomic_number {
             }
         }
 
-        // Trait implementations: These methods forward to the struct's
-        // direct implementations for API consistency. This design allows
-        // both convenient direct method calls (atomic.load()) and generic
-        // trait-based programming (fn foo<T: Atomic>(atomic: &T)).
+        // Internal trait implementations forward to the concrete backend so
+        // the public Atomic<T> wrapper can delegate without duplicating logic.
 
-        impl crate::atomic::traits::Atomic for $name {
+        impl crate::atomic::atomic_ops::AtomicOps for $name {
             type Value = $value_type;
 
             #[inline]
@@ -998,7 +1010,7 @@ macro_rules! impl_atomic_number {
             }
         }
 
-        impl crate::atomic::traits::AtomicNumber for $name {
+        impl crate::atomic::atomic_number_ops::AtomicNumberOps for $name {
             #[inline]
             fn fetch_add(&self, delta: $value_type) -> $value_type {
                 self.fetch_add(delta)
@@ -1020,37 +1032,5 @@ macro_rules! impl_atomic_number {
             }
         }
 
-        impl Default for $name {
-            #[inline]
-            fn default() -> Self {
-                Self::new(0)
-            }
-        }
-
-        impl From<$value_type> for $name {
-            #[inline]
-            fn from(value: $value_type) -> Self {
-                Self::new(value)
-            }
-        }
-
-        impl fmt::Debug for $name {
-            #[inline]
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                f.debug_struct(stringify!($name))
-                    .field("value", &self.load())
-                    .finish()
-            }
-        }
-
-        impl fmt::Display for $name {
-            #[inline]
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                write!(f, "{}", self.load())
-            }
-        }
     };
 }
-
-#[allow(unused_imports)]
-pub(crate) use impl_atomic_number;
