@@ -10,10 +10,7 @@
 use std::sync::Arc;
 use std::thread;
 
-use qubit_atomic::{
-    ArcAtomic,
-    Atomic,
-};
+use qubit_atomic::{ArcAtomic, Atomic};
 
 #[test]
 fn test_arc_atomic_shared_owner() {
@@ -46,6 +43,17 @@ fn test_arc_atomic_constructors_and_arc_access() {
 
     let unwrapped = wrapped.into_arc();
     assert!(Arc::ptr_eq(&unwrapped, &raw));
+}
+
+#[test]
+fn test_arc_atomic_from_trait_conversions() {
+    let from_atomic: ArcAtomic<i32> = Atomic::<i32>::new(9).into();
+    assert_eq!(from_atomic.load(), 9);
+
+    let raw = Arc::new(Atomic::<i32>::new(11));
+    let from_arc: ArcAtomic<i32> = Arc::clone(&raw).into();
+    assert!(Arc::ptr_eq(from_arc.as_arc(), &raw));
+    assert_eq!(from_arc.load(), 11);
 }
 
 #[test]

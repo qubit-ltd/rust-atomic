@@ -17,10 +17,7 @@
 //! Haixing Hu
 
 use std::fmt;
-use std::sync::atomic::{
-    AtomicUsize as StdAtomicUsize,
-    Ordering,
-};
+use std::sync::atomic::{AtomicUsize as StdAtomicUsize, Ordering};
 
 /// A non-negative atomic counter with synchronization-oriented operations.
 ///

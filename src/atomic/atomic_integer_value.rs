@@ -17,19 +17,8 @@
 //! Haixing Hu
 
 use super::{
-    atomic_i8,
-    atomic_i16,
-    atomic_i32,
-    atomic_i64,
-    atomic_i128,
-    atomic_isize,
-    atomic_u8,
-    atomic_u16,
-    atomic_u32,
-    atomic_u64,
-    atomic_u128,
-    atomic_usize,
-    atomic_value::AtomicValue,
+    atomic_i8, atomic_i16, atomic_i32, atomic_i64, atomic_i128, atomic_isize, atomic_u8,
+    atomic_u16, atomic_u32, atomic_u64, atomic_u128, atomic_usize, atomic_value::AtomicValue,
     sealed,
 };
 

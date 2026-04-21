@@ -9,10 +9,7 @@
 
 use std::sync::Arc;
 
-use qubit_atomic::{
-    ArcAtomicSignedCount,
-    AtomicSignedCount,
-};
+use qubit_atomic::{ArcAtomicSignedCount, AtomicSignedCount};
 
 #[test]
 fn test_arc_atomic_signed_count_shared_owner() {
@@ -40,6 +37,17 @@ fn test_arc_atomic_signed_count_constructors_and_arc_access() {
 
     let unwrapped = wrapped.into_arc();
     assert!(Arc::ptr_eq(&unwrapped, &raw));
+}
+
+#[test]
+fn test_arc_atomic_signed_count_from_trait_conversions() {
+    let from_count: ArcAtomicSignedCount = AtomicSignedCount::new(-9).into();
+    assert_eq!(from_count.get(), -9);
+
+    let raw = Arc::new(AtomicSignedCount::new(-11));
+    let from_arc: ArcAtomicSignedCount = Arc::clone(&raw).into();
+    assert!(Arc::ptr_eq(from_arc.as_arc(), &raw));
+    assert_eq!(from_arc.get(), -11);
 }
 
 #[test]

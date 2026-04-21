@@ -9,10 +9,7 @@
 
 use qubit_atomic::AtomicRef;
 use std::sync::Arc;
-use std::sync::atomic::{
-    AtomicUsize,
-    Ordering,
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 
 #[derive(Debug, Clone, PartialEq)]

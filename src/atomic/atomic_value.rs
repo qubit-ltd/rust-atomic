@@ -16,13 +16,7 @@
 //!
 //! Haixing Hu
 
-use super::{
-    atomic_bool,
-    atomic_f32,
-    atomic_f64,
-    atomic_ops::AtomicOps,
-    sealed,
-};
+use super::{atomic_bool, atomic_f32, atomic_f64, atomic_ops::AtomicOps, sealed};
 
 /// Marker trait for values supported by [`crate::Atomic<T>`].
 ///

@@ -9,10 +9,7 @@
 
 use std::sync::Arc;
 
-use qubit_atomic::{
-    ArcAtomicRef,
-    AtomicRef,
-};
+use qubit_atomic::{ArcAtomicRef, AtomicRef};
 
 #[derive(Debug, Clone, PartialEq)]
 struct TestData {
@@ -70,6 +67,17 @@ fn test_arc_atomic_ref_constructors_and_arc_access() {
 
     let unwrapped = wrapped.into_arc();
     assert!(Arc::ptr_eq(&unwrapped, &raw));
+}
+
+#[test]
+fn test_arc_atomic_ref_from_trait_conversions() {
+    let from_atomic_ref: ArcAtomicRef<i32> = AtomicRef::from_value(40).into();
+    assert_eq!(*from_atomic_ref.load(), 40);
+
+    let raw = Arc::new(AtomicRef::from_value(50));
+    let from_arc: ArcAtomicRef<i32> = Arc::clone(&raw).into();
+    assert!(Arc::ptr_eq(from_arc.as_arc(), &raw));
+    assert_eq!(*from_arc.load(), 50);
 }
 
 #[test]
