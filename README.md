@@ -495,6 +495,12 @@ directly on the wrapper.
 | `fetch_update(f)` | Functional update, return old | AcqRel/Acquire |
 | `try_update(f)` | Conditional functional update, return `Option<old>` | AcqRel/Acquire |
 
+Floating-point CAS operations (`compare_set`, `compare_and_exchange`, and weak
+variants) compare raw `to_bits()` representations, not `PartialEq`. Values such
+as `0.0` and `-0.0` compare equal but do not CAS-match, and NaN payload bits
+must match exactly. Use `compare_set` when you need an explicit success result,
+or compare `to_bits()` values yourself.
+
 ## Memory Ordering Strategy
 
 | Operation Type | Default Ordering | Reason |

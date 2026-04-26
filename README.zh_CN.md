@@ -492,6 +492,11 @@ fn main() {
 | `fetch_update(f)` | 函数式更新，返回旧值 | AcqRel/Acquire |
 | `try_update(f)` | 条件函数式更新，返回 `Option<旧值>` | AcqRel/Acquire |
 
+浮点 CAS 操作（`compare_set`、`compare_and_exchange` 及其 weak 版本）比较的是
+原始 `to_bits()` 位模式，而不是 `PartialEq`。例如 `0.0` 和 `-0.0` 虽然相等，
+但 CAS 不会匹配；NaN 的 payload 位也必须完全一致。需要明确成功结果时，
+优先使用 `compare_set`，或自行比较 `to_bits()`。
+
 ## 内存序策略
 
 | 操作类型 | 默认内存序 | 原因 |
