@@ -765,12 +765,6 @@ fn test_debug_simple() {
     assert!(debug_str.contains("42"));
 }
 
-// TODO: Rewrite after UpdatableAtomic removal
-// #[test]
-// fn test_trait_updatable_atomic_comprehensive() {
-//     // Test needs to be rewritten for fetch_update
-// }
-
 #[test]
 fn test_trait_atomic_comprehensive() {
     fn test_atomic(atomic: &AtomicRef<i32>) {

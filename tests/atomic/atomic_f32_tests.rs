@@ -426,12 +426,6 @@ fn test_debug_false() {
     assert!(debug_str.contains("0"));
 }
 
-// TODO: Rewrite this test after UpdatableAtomic trait removal
-// #[test]
-// fn test_trait_updatable_atomic_comprehensive() {
-//     // Test needs to be rewritten for fetch_update
-// }
-
 #[test]
 fn test_trait_atomic_comprehensive() {
     fn test_atomic(atomic: &Atomic<f32>) {
