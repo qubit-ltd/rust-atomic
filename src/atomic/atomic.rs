@@ -473,7 +473,7 @@ where
     /// Returns the raw backend atomic value.
     ///
     /// Use this method only when the default orderings are not appropriate
-    /// and the caller needs direct access to the standard-library backend.
+    /// and the caller needs direct access to the backend atomic storage.
     ///
     /// # Returns
     ///

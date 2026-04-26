@@ -739,8 +739,8 @@ macro_rules! impl_atomic_number {
 
             /// Performs bitwise NOT, returning the old value.
             ///
-            /// This is a convenience method equivalent to
-            /// `fetch_xor(-1)`. Uses `AcqRel` ordering.
+            /// This is a convenience method equivalent to XOR with an all-ones
+            /// bit mask. Uses `AcqRel` ordering.
             ///
             /// # Returns
             ///
@@ -760,7 +760,7 @@ macro_rules! impl_atomic_number {
             ///
             /// # Note
             ///
-            /// This method is implemented using `fetch_xor(-1)` because
+            /// This method is implemented using `fetch_xor(!0)` because
             /// hardware and LLVM do not provide a native atomic NOT
             /// instruction. The compiler will optimize this into
             /// efficient machine code.
