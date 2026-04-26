@@ -115,14 +115,14 @@ fn test_try_add_underflow_keeps_value() {
 }
 
 #[test]
-#[should_panic(expected = "atomic signed counter overflow")]
+#[should_panic(expected = "atomic signed counter out of range")]
 fn test_add_overflow_panics() {
     let counter = AtomicSignedCount::new(isize::MAX);
     counter.inc();
 }
 
 #[test]
-#[should_panic(expected = "atomic signed counter overflow")]
+#[should_panic(expected = "atomic signed counter out of range")]
 fn test_add_underflow_panics() {
     let counter = AtomicSignedCount::new(isize::MIN);
     counter.add(-1);
@@ -169,14 +169,14 @@ fn test_try_sub_underflow_keeps_value() {
 }
 
 #[test]
-#[should_panic(expected = "atomic signed counter overflow")]
+#[should_panic(expected = "atomic signed counter out of range")]
 fn test_sub_overflow_panics() {
     let counter = AtomicSignedCount::new(isize::MAX);
     counter.sub(-1);
 }
 
 #[test]
-#[should_panic(expected = "atomic signed counter overflow")]
+#[should_panic(expected = "atomic signed counter out of range")]
 fn test_sub_underflow_panics() {
     let counter = AtomicSignedCount::new(isize::MIN);
     counter.dec();

@@ -105,11 +105,43 @@ macro_rules! test_atomic_integer {
             }
 
             #[test]
+            fn test_fetch_inc_wraps_at_max() {
+                let atomic = Atomic::<$value_type>::new(<$value_type>::MAX);
+                let old = atomic.fetch_inc();
+                assert_eq!(old, <$value_type>::MAX);
+                assert_eq!(atomic.load(), <$value_type>::MAX.wrapping_add(1));
+            }
+
+            #[test]
+            fn test_fetch_add_wraps_at_max() {
+                let atomic = Atomic::<$value_type>::new(<$value_type>::MAX);
+                let old = atomic.fetch_add(1);
+                assert_eq!(old, <$value_type>::MAX);
+                assert_eq!(atomic.load(), <$value_type>::MAX.wrapping_add(1));
+            }
+
+            #[test]
             fn test_get_and_sub() {
                 let atomic = Atomic::<$value_type>::new(10);
                 let old = atomic.fetch_sub(3);
                 assert_eq!(old, 10);
                 assert_eq!(atomic.load(), 7);
+            }
+
+            #[test]
+            fn test_fetch_dec_wraps_at_min() {
+                let atomic = Atomic::<$value_type>::new(<$value_type>::MIN);
+                let old = atomic.fetch_dec();
+                assert_eq!(old, <$value_type>::MIN);
+                assert_eq!(atomic.load(), <$value_type>::MIN.wrapping_sub(1));
+            }
+
+            #[test]
+            fn test_fetch_sub_wraps_at_min() {
+                let atomic = Atomic::<$value_type>::new(<$value_type>::MIN);
+                let old = atomic.fetch_sub(1);
+                assert_eq!(old, <$value_type>::MIN);
+                assert_eq!(atomic.load(), <$value_type>::MIN.wrapping_sub(1));
             }
 
             #[test]
@@ -134,6 +166,15 @@ macro_rules! test_atomic_integer {
                 let old = atomic.fetch_mul(1);
                 assert_eq!(old, 10);
                 assert_eq!(atomic.load(), 10);
+            }
+
+            #[test]
+            fn test_fetch_mul_wraps() {
+                let factor = 2 as $value_type;
+                let atomic = Atomic::<$value_type>::new(<$value_type>::MAX);
+                let old = atomic.fetch_mul(factor);
+                assert_eq!(old, <$value_type>::MAX);
+                assert_eq!(atomic.load(), <$value_type>::MAX.wrapping_mul(factor));
             }
 
             #[test]
@@ -207,6 +248,18 @@ macro_rules! test_atomic_integer {
                 let old = atomic.fetch_update(|x| x * 2);
                 assert_eq!(old, 10);
                 assert_eq!(atomic.load(), 20);
+            }
+
+            #[test]
+            fn test_try_update_success_and_reject() {
+                let atomic = Atomic::<$value_type>::new(3);
+                let old = atomic.try_update(|x| (x % 2 == 1).then_some(x + 1));
+                assert_eq!(old, Some(3));
+                assert_eq!(atomic.load(), 4);
+
+                let rejected = atomic.try_update(|x| (x % 2 == 1).then_some(x + 1));
+                assert_eq!(rejected, None);
+                assert_eq!(atomic.load(), 4);
             }
 
             #[test]

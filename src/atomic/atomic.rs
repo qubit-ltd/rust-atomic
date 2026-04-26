@@ -58,7 +58,13 @@ use super::atomic_value::AtomicValue;
 /// [`compare_set_weak`](Self::compare_set_weak),
 /// [`compare_and_exchange`](Self::compare_and_exchange),
 /// [`compare_and_exchange_weak`](Self::compare_and_exchange_weak),
-/// [`fetch_update`](Self::fetch_update), and [`inner`](Self::inner).
+/// [`fetch_update`](Self::fetch_update), [`try_update`](Self::try_update),
+/// and [`inner`](Self::inner).
+///
+/// Integer arithmetic operations intentionally follow Rust atomic integer
+/// semantics and wrap on overflow and underflow. Use [`crate::AtomicCount`] or
+/// [`crate::AtomicSignedCount`] when overflow or underflow must be rejected
+/// instead of wrapping.
 ///
 /// # Example
 ///
@@ -410,6 +416,41 @@ where
         AtomicOps::fetch_update(&self.primitive, f)
     }
 
+    /// Conditionally updates the value with a function.
+    ///
+    /// The update uses a CAS loop until it succeeds or the closure rejects the
+    /// observed current value by returning `None`. The closure may be called
+    /// more than once under contention.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - A function that maps the current value to `Some(next)` to update
+    ///   the atomic, or `None` to leave it unchanged.
+    ///
+    /// # Returns
+    ///
+    /// `Some(old_value)` with the value before the successful update, or `None`
+    /// when `f` rejects the observed current value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use qubit_atomic::Atomic;
+    ///
+    /// let atomic = Atomic::new(3);
+    /// assert_eq!(atomic.try_update(|x| (x % 2 == 1).then_some(x + 1)), Some(3));
+    /// assert_eq!(atomic.load(), 4);
+    /// assert_eq!(atomic.try_update(|x| (x % 2 == 1).then_some(x + 1)), None);
+    /// assert_eq!(atomic.load(), 4);
+    /// ```
+    #[inline]
+    pub fn try_update<F>(&self, f: F) -> Option<T>
+    where
+        F: Fn(T) -> Option<T>,
+    {
+        AtomicOps::try_update(&self.primitive, f)
+    }
+
     /// Returns the raw backend atomic value.
     ///
     /// Use this method only when the default orderings are not appropriate
@@ -442,7 +483,8 @@ where
     /// Adds `delta` to the value and returns the previous value.
     ///
     /// Integer atomics use relaxed ordering for this operation. Floating-point
-    /// atomics use a CAS loop.
+    /// atomics use a CAS loop. Integer addition wraps on overflow and
+    /// underflow.
     ///
     /// # Parameters
     ///
@@ -469,7 +511,8 @@ where
     /// Subtracts `delta` from the value and returns the previous value.
     ///
     /// Integer atomics use relaxed ordering for this operation. Floating-point
-    /// atomics use a CAS loop.
+    /// atomics use a CAS loop. Integer subtraction wraps on overflow and
+    /// underflow.
     ///
     /// # Parameters
     ///
@@ -495,7 +538,8 @@ where
 
     /// Multiplies the value by `factor` and returns the previous value.
     ///
-    /// This operation uses a CAS loop.
+    /// This operation uses a CAS loop. Integer multiplication wraps on
+    /// overflow and underflow.
     ///
     /// # Parameters
     ///
@@ -521,7 +565,8 @@ where
 
     /// Divides the value by `divisor` and returns the previous value.
     ///
-    /// This operation uses a CAS loop.
+    /// This operation uses a CAS loop. Integer division uses wrapping
+    /// semantics; for signed integers, `MIN / -1` wraps to `MIN`.
     ///
     /// # Parameters
     ///

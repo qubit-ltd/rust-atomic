@@ -7,13 +7,15 @@
  *
  ******************************************************************************/
 
-use qubit_atomic::AtomicRef;
+use std::cell::Cell;
 use std::sync::Arc;
 use std::sync::atomic::{
     AtomicUsize,
     Ordering,
 };
 use std::thread;
+
+use qubit_atomic::AtomicRef;
 
 #[derive(Debug, Clone, PartialEq)]
 struct TestData {
@@ -71,6 +73,25 @@ fn test_get_set() {
     let current = atomic.load();
     assert_eq!(current.value, 100);
     assert_eq!(current.name, "second");
+}
+
+#[test]
+fn test_load_guard_snapshot() {
+    let data1 = Arc::new(TestData {
+        value: 42,
+        name: "first".to_string(),
+    });
+    let atomic = AtomicRef::new(data1);
+
+    let guard = atomic.load_guard();
+    atomic.store(Arc::new(TestData {
+        value: 100,
+        name: "second".to_string(),
+    }));
+
+    assert_eq!(guard.value, 42);
+    assert_eq!(guard.name, "first");
+    assert_eq!(atomic.load().value, 100);
 }
 
 #[test]
@@ -176,6 +197,53 @@ fn test_get_and_update() {
     assert_eq!(old.name, "test");
     assert_eq!(atomic.load().value, 84);
     assert_eq!(atomic.load().name, "test_updated");
+}
+
+#[test]
+fn test_try_update_success_and_reject() {
+    let data = Arc::new(TestData {
+        value: 42,
+        name: "test".to_string(),
+    });
+    let atomic = AtomicRef::new(data);
+
+    let old = atomic.try_update(|current| {
+        (current.value > 0).then_some(Arc::new(TestData {
+            value: current.value * 2,
+            name: format!("{}_updated", current.name),
+        }))
+    });
+
+    assert_eq!(old.unwrap().value, 42);
+    assert_eq!(atomic.load().value, 84);
+    assert_eq!(atomic.load().name, "test_updated");
+
+    let rejected = atomic.try_update(|current| {
+        (current.value < 0).then_some(Arc::new(TestData {
+            value: current.value * 2,
+            name: "rejected".to_string(),
+        }))
+    });
+
+    assert!(rejected.is_none());
+    assert_eq!(atomic.load().value, 84);
+    assert_eq!(atomic.load().name, "test_updated");
+}
+
+#[test]
+fn test_try_update_retry_path() {
+    let atomic = AtomicRef::new(Arc::new(1));
+    let raced = Cell::new(false);
+
+    let old = atomic.try_update(|current| {
+        if !raced.replace(true) {
+            atomic.store(Arc::new(**current + 10));
+        }
+        Some(Arc::new(**current * 2))
+    });
+
+    assert_eq!(*old.unwrap(), 11);
+    assert_eq!(*atomic.load(), 22);
 }
 
 #[test]

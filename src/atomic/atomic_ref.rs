@@ -16,7 +16,10 @@
 //!
 //! Haixing Hu
 
-use arc_swap::ArcSwap;
+use arc_swap::{
+    ArcSwap,
+    Guard,
+};
 use std::fmt;
 use std::sync::Arc;
 
@@ -150,6 +153,31 @@ impl<T> AtomicRef<T> {
     #[inline]
     pub fn load(&self) -> Arc<T> {
         self.inner.load_full()
+    }
+
+    /// Gets the current reference as an `ArcSwap` guard.
+    ///
+    /// This is useful for short-lived reads because it avoids cloning the
+    /// underlying [`Arc`] on the fast path. Use [`load`](Self::load) when the
+    /// caller needs an owned [`Arc<T>`] that can be stored or moved freely.
+    ///
+    /// # Returns
+    ///
+    /// A guard pointing to the current `Arc`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use qubit_atomic::AtomicRef;
+    /// use std::sync::Arc;
+    ///
+    /// let atomic = AtomicRef::new(Arc::new(42));
+    /// let guard = atomic.load_guard();
+    /// assert_eq!(**guard, 42);
+    /// ```
+    #[inline]
+    pub fn load_guard(&self) -> Guard<Arc<T>> {
+        self.inner.load()
     }
 
     /// Sets a new reference.
@@ -398,6 +426,58 @@ impl<T> AtomicRef<T> {
             let new = f(&current);
             match self.compare_set_weak(&current, new) {
                 Ok(_) => return current,
+                Err(actual) => current = actual,
+            }
+        }
+    }
+
+    /// Conditionally updates the reference using a function.
+    ///
+    /// Internally uses a pointer-based CAS loop until the update succeeds or
+    /// the closure rejects the current reference by returning `None`.
+    ///
+    /// # Parameters
+    ///
+    /// * `f` - A function that takes the current reference and returns the new
+    ///   reference, or `None` to leave the current reference unchanged.
+    ///
+    /// # Returns
+    ///
+    /// `Some(old_reference)` when the update succeeds, or `None` when `f`
+    /// rejects the observed current reference.
+    ///
+    /// The closure may be called more than once when concurrent updates cause
+    /// CAS retries.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use qubit_atomic::AtomicRef;
+    /// use std::sync::Arc;
+    ///
+    /// let atomic = AtomicRef::new(Arc::new(3));
+    /// let old = atomic.try_update(|current| {
+    ///     (**current % 2 == 1).then_some(Arc::new(**current + 1))
+    /// });
+    /// assert_eq!(*old.unwrap(), 3);
+    /// assert_eq!(*atomic.load(), 4);
+    /// assert!(atomic
+    ///     .try_update(|current| {
+    ///         (**current % 2 == 1).then_some(Arc::new(**current + 1))
+    ///     })
+    ///     .is_none());
+    /// assert_eq!(*atomic.load(), 4);
+    /// ```
+    #[inline]
+    pub fn try_update<F>(&self, f: F) -> Option<Arc<T>>
+    where
+        F: Fn(&Arc<T>) -> Option<Arc<T>>,
+    {
+        let mut current = self.load();
+        loop {
+            let new = f(&current)?;
+            match self.compare_set_weak(&current, new) {
+                Ok(_) => return Some(current),
                 Err(actual) => current = actual,
             }
         }

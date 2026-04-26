@@ -24,6 +24,9 @@ use super::atomic_ops::AtomicOps;
 /// for both integer and floating-point atomic types. This trait unifies
 /// the arithmetic interface across all numeric atomic types.
 ///
+/// Integer implementations follow Rust atomic integer semantics and wrap on
+/// overflow and underflow.
+///
 /// # Note
 ///
 /// Integer types also provide `fetch_inc()` and `fetch_dec()` methods
@@ -36,7 +39,8 @@ use super::atomic_ops::AtomicOps;
 pub trait AtomicNumberOps: AtomicOps {
     /// Adds a delta to the value, returning the old value.
     ///
-    /// For integers, uses `Relaxed` ordering by default.
+    /// For integers, uses `Relaxed` ordering by default and wraps on overflow
+    /// or underflow.
     /// For floating-point types, uses `AcqRel` ordering (CAS loop).
     ///
     /// # Parameters
@@ -50,7 +54,8 @@ pub trait AtomicNumberOps: AtomicOps {
 
     /// Subtracts a delta from the value, returning the old value.
     ///
-    /// For integers, uses `Relaxed` ordering by default.
+    /// For integers, uses `Relaxed` ordering by default and wraps on overflow
+    /// or underflow.
     /// For floating-point types, uses `AcqRel` ordering (CAS loop).
     ///
     /// # Parameters
@@ -64,7 +69,8 @@ pub trait AtomicNumberOps: AtomicOps {
 
     /// Multiplies the value by a factor, returning the old value.
     ///
-    /// Uses `AcqRel` ordering by default. Implemented via CAS loop.
+    /// Uses `AcqRel` ordering by default. Implemented via CAS loop. Integer
+    /// multiplication wraps on overflow and underflow.
     ///
     /// # Parameters
     ///
@@ -77,7 +83,8 @@ pub trait AtomicNumberOps: AtomicOps {
 
     /// Divides the value by a divisor, returning the old value.
     ///
-    /// Uses `AcqRel` ordering by default. Implemented via CAS loop.
+    /// Uses `AcqRel` ordering by default. Implemented via CAS loop. Integer
+    /// division uses wrapping semantics; signed `MIN / -1` wraps to `MIN`.
     ///
     /// # Parameters
     ///

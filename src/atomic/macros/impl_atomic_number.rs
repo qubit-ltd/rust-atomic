@@ -50,6 +50,8 @@ macro_rules! impl_atomic_number {
         /// - **Arithmetic operations** (`fetch_inc`, `fetch_add`, etc.):
         ///   Use `Relaxed` ordering for optimal performance in pure
         ///   counting scenarios where no other data needs synchronization.
+        ///   Arithmetic intentionally follows Rust integer atomic wrapping
+        ///   semantics on overflow and underflow.
         /// - **Bit operations** (`fetch_and`, `fetch_or`, etc.): Use
         ///   `AcqRel` ordering as they typically synchronize flag states.
         /// - **Max/Min operations**: Use `AcqRel` ordering as they often
@@ -442,6 +444,9 @@ macro_rules! impl_atomic_number {
 
             /// Increments the value by 1, returning the old value.
             ///
+            /// Arithmetic wraps on overflow, matching Rust atomic integer
+            /// operations.
+            ///
             /// # Memory Ordering
             ///
             /// Uses `Relaxed` ordering for optimal performance. This is
@@ -477,6 +482,9 @@ macro_rules! impl_atomic_number {
 
             /// Decrements the value by 1, returning the old value.
             ///
+            /// Arithmetic wraps on underflow, matching Rust atomic integer
+            /// operations.
+            ///
             /// Uses `Relaxed` ordering.
             ///
             /// # Returns
@@ -499,6 +507,9 @@ macro_rules! impl_atomic_number {
             }
 
             /// Adds a delta to the value, returning the old value.
+            ///
+            /// Arithmetic wraps on overflow and underflow, matching Rust
+            /// atomic integer operations.
             ///
             /// # Memory Ordering
             ///
@@ -532,6 +543,9 @@ macro_rules! impl_atomic_number {
 
             /// Subtracts a delta from the value, returning the old value.
             ///
+            /// Arithmetic wraps on overflow and underflow, matching Rust
+            /// atomic integer operations.
+            ///
             /// Uses `Relaxed` ordering.
             ///
             /// # Parameters
@@ -558,6 +572,8 @@ macro_rules! impl_atomic_number {
             }
 
             /// Multiplies the value by a factor, returning the old value.
+            ///
+            /// Arithmetic wraps on overflow and underflow.
             ///
             /// # Memory Ordering
             ///
@@ -589,6 +605,9 @@ macro_rules! impl_atomic_number {
             }
 
             /// Divides the value by a divisor, returning the old value.
+            ///
+            /// Arithmetic uses wrapping division. For signed integers,
+            /// `MIN / -1` wraps to `MIN`.
             ///
             /// # Memory Ordering
             ///
@@ -786,6 +805,50 @@ macro_rules! impl_atomic_number {
                     let new = f(current);
                     match self.compare_set_weak(current, new) {
                         Ok(_) => return current,
+                        Err(actual) => current = actual,
+                    }
+                }
+            }
+
+            /// Conditionally updates the value using a function.
+            ///
+            /// Internally uses a CAS loop until the update succeeds or the
+            /// closure rejects the current value by returning `None`.
+            ///
+            /// # Parameters
+            ///
+            /// * `f` - A function that takes the current value and returns
+            ///   the new value, or `None` to leave the value unchanged.
+            ///
+            /// # Returns
+            ///
+            /// `Some(old_value)` when the update succeeds, or `None` when
+            /// `f` rejects the observed current value.
+            ///
+            /// The closure may be called more than once when concurrent
+            /// updates cause CAS retries.
+            ///
+            /// # Example
+            ///
+            /// ```rust
+            /// use qubit_atomic::Atomic;
+            ///
+            #[doc = concat!("let atomic = Atomic::<", stringify!($value_type), ">::new(3);")]
+            /// assert_eq!(atomic.try_update(|x| (x % 2 == 1).then_some(x + 1)), Some(3));
+            /// assert_eq!(atomic.load(), 4);
+            /// assert_eq!(atomic.try_update(|x| (x % 2 == 1).then_some(x + 1)), None);
+            /// assert_eq!(atomic.load(), 4);
+            /// ```
+            #[inline]
+            pub fn try_update<F>(&self, f: F) -> Option<$value_type>
+            where
+                F: Fn($value_type) -> Option<$value_type>,
+            {
+                let mut current = self.load();
+                loop {
+                    let new = f(current)?;
+                    match self.compare_set_weak(current, new) {
+                        Ok(_) => return Some(current),
                         Err(actual) => current = actual,
                     }
                 }
@@ -999,14 +1062,15 @@ macro_rules! impl_atomic_number {
             where
                 F: Fn($value_type) -> $value_type,
             {
-                let mut current = self.load();
-                loop {
-                    let new = f(current);
-                    match self.compare_set_weak(current, new) {
-                        Ok(_) => return current,
-                        Err(actual) => current = actual,
-                    }
-                }
+                self.fetch_update(f)
+            }
+
+            #[inline]
+            fn try_update<F>(&self, f: F) -> Option<$value_type>
+            where
+                F: Fn($value_type) -> Option<$value_type>,
+            {
+                self.try_update(f)
             }
         }
 

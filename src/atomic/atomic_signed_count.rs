@@ -250,7 +250,8 @@ impl AtomicSignedCount {
     /// ```
     #[inline]
     pub fn add(&self, delta: isize) -> isize {
-        self.try_add(delta).expect("atomic signed counter overflow")
+        self.try_add(delta)
+            .expect("atomic signed counter out of range")
     }
 
     /// Tries to add `delta` to the counter.
@@ -302,7 +303,8 @@ impl AtomicSignedCount {
     /// ```
     #[inline]
     pub fn sub(&self, delta: isize) -> isize {
-        self.try_sub(delta).expect("atomic signed counter overflow")
+        self.try_sub(delta)
+            .expect("atomic signed counter out of range")
     }
 
     /// Tries to subtract `delta` from the counter.

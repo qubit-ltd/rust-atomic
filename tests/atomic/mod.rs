@@ -26,6 +26,7 @@ mod atomic_i8_tests;
 mod atomic_isize_tests;
 mod atomic_ref_tests;
 mod atomic_signed_count_tests;
+mod atomic_signed_wrap_tests;
 mod atomic_tests;
 mod atomic_u128_tests;
 mod atomic_u16_tests;

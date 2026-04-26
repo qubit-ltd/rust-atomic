@@ -87,6 +87,104 @@ fn test_fetch_update_retry_paths() {
 }
 
 #[test]
+fn test_try_update_success_and_reject_paths() {
+    let bool_atomic = Atomic::<bool>::new(false);
+    assert_eq!(
+        bool_atomic.try_update(|current| (!current).then_some(true)),
+        Some(false),
+    );
+    assert!(bool_atomic.load());
+    assert_eq!(
+        bool_atomic.try_update(|current| (!current).then_some(true)),
+        None,
+    );
+    assert!(bool_atomic.load());
+
+    let int_atomic = Atomic::<i32>::new(3);
+    assert_eq!(
+        int_atomic.try_update(|current| (current % 2 == 1).then_some(current + 1)),
+        Some(3),
+    );
+    assert_eq!(int_atomic.load(), 4);
+    assert_eq!(
+        int_atomic.try_update(|current| (current % 2 == 1).then_some(current + 1)),
+        None,
+    );
+    assert_eq!(int_atomic.load(), 4);
+
+    let float_atomic = Atomic::<f32>::new(1.5);
+    assert_eq!(
+        float_atomic.try_update(|current| (current > 0.0).then_some(current * 2.0)),
+        Some(1.5),
+    );
+    assert_eq!(float_atomic.load(), 3.0);
+    assert_eq!(
+        float_atomic.try_update(|current| (current < 0.0).then_some(current * 2.0)),
+        None,
+    );
+    assert_eq!(float_atomic.load(), 3.0);
+
+    let double_atomic = Atomic::<f64>::new(1.5);
+    assert_eq!(
+        double_atomic.try_update(|current| (current > 0.0).then_some(current * 2.0)),
+        Some(1.5),
+    );
+    assert_eq!(double_atomic.load(), 3.0);
+    assert_eq!(
+        double_atomic.try_update(|current| (current < 0.0).then_some(current * 2.0)),
+        None,
+    );
+    assert_eq!(double_atomic.load(), 3.0);
+}
+
+#[test]
+fn test_try_update_retry_paths() {
+    let bool_atomic = Atomic::<bool>::new(false);
+    let bool_raced = Cell::new(false);
+    let bool_old = bool_atomic.try_update(|current| {
+        if !bool_raced.replace(true) {
+            bool_atomic.store(!current);
+        }
+        Some(!current)
+    });
+    assert_eq!(bool_old, Some(true));
+    assert!(!bool_atomic.load());
+
+    let int_atomic = Atomic::<i32>::new(1);
+    let int_raced = Cell::new(false);
+    let int_old = int_atomic.try_update(|current| {
+        if !int_raced.replace(true) {
+            int_atomic.store(current + 10);
+        }
+        Some(current * 2)
+    });
+    assert_eq!(int_old, Some(11));
+    assert_eq!(int_atomic.load(), 22);
+
+    let float_atomic = Atomic::<f32>::new(1.0);
+    let float_raced = Cell::new(false);
+    let float_old = float_atomic.try_update(|current| {
+        if !float_raced.replace(true) {
+            float_atomic.store(current + 10.0);
+        }
+        Some(current * 2.0)
+    });
+    assert_eq!(float_old, Some(11.0));
+    assert_eq!(float_atomic.load(), 22.0);
+
+    let double_atomic = Atomic::<f64>::new(1.0);
+    let double_raced = Cell::new(false);
+    let double_old = double_atomic.try_update(|current| {
+        if !double_raced.replace(true) {
+            double_atomic.store(current + 10.0);
+        }
+        Some(current * 2.0)
+    });
+    assert_eq!(double_old, Some(11.0));
+    assert_eq!(double_atomic.load(), 22.0);
+}
+
+#[test]
 fn test_inner_backends() {
     let flag = Atomic::<bool>::new(false);
     assert!(!flag.inner().load(Ordering::Acquire));
