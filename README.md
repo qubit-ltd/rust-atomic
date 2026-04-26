@@ -508,11 +508,11 @@ or compare `to_bits()` values yourself.
 | **Pure Read** (`load()`) | `Acquire` | Ensure reading latest value |
 | **Pure Write** (`store()`) | `Release` | Ensure write visibility |
 | **Read-Modify-Write** (`swap()`, CAS) | `AcqRel` | Ensure both read and write correctness |
-| **`Atomic<T>` integer ops** (`fetch_inc()`, `fetch_add()`) | `Relaxed` | Pure metrics; no need to sync other data |
+| **`Atomic<T>` counter arithmetic** (`fetch_inc()`, `fetch_dec()`, `fetch_add()`, `fetch_sub()`) | `Relaxed` | Pure metrics; no need to sync other data |
+| **CAS-based arithmetic and updates** (`fetch_mul()`, `fetch_div()`, `fetch_update()`, `try_update()`, `fetch_accumulate()`) | `AcqRel` / `Acquire` | CAS loop standard semantics |
 | **`AtomicCount` / `AtomicSignedCount`** (`inc()`, `dec()`) | CAS loop | Values used as concurrent state signals |
 | **Bitwise Operations** (`fetch_and()`, `fetch_or()`) | `AcqRel` | Usually used for flag synchronization |
 | **Max/Min Operations** (`fetch_max()`, `fetch_min()`) | `AcqRel` | Often used with threshold checks |
-| **Functional Updates** (`fetch_update()`, `try_update()`) | `AcqRel` / `Acquire` | CAS loop standard semantics |
 
 ### Advanced Usage: Direct Access to Underlying Types
 

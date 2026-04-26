@@ -504,11 +504,11 @@ fn main() {
 | **纯读操作** (`load()`) | `Acquire` | 保证读取最新值 |
 | **纯写操作** (`store()`) | `Release` | 保证写入可见 |
 | **读-改-写操作** (`swap()`、CAS) | `AcqRel` | 同时保证读和写的正确性 |
-| **`Atomic<T>` 整数操作** (`fetch_inc()`、`fetch_add()`) | `Relaxed` | 纯指标场景，无需同步其他数据 |
+| **`Atomic<T>` 计数加减操作** (`fetch_inc()`、`fetch_dec()`、`fetch_add()`、`fetch_sub()`) | `Relaxed` | 纯指标场景，无需同步其他数据 |
+| **基于 CAS 的算术和更新操作** (`fetch_mul()`、`fetch_div()`、`fetch_update()`、`try_update()`、`fetch_accumulate()`) | `AcqRel` / `Acquire` | CAS 循环标准语义 |
 | **`AtomicCount` / `AtomicSignedCount`** (`inc()`、`dec()`) | CAS 循环 | 值作为并发状态信号 |
 | **位运算操作** (`fetch_and()`、`fetch_or()`) | `AcqRel` | 通常用于标志位同步 |
 | **最大/最小值操作** (`fetch_max()`、`fetch_min()`) | `AcqRel` | 常与阈值判断配合使用 |
-| **函数式更新** (`fetch_update()`、`try_update()`) | `AcqRel` / `Acquire` | CAS 循环标准语义 |
 
 ### 高级用法：直接访问底层类型
 
