@@ -130,7 +130,9 @@ pub trait AtomicOps {
     /// # Returns
     ///
     /// The value before the operation. If it equals `current`, the
-    /// operation succeeded.
+    /// operation succeeded for non-floating-point backends. Floating-point
+    /// backends compare raw bit patterns, so callers must compare raw bits or
+    /// use `compare_set` when they need an explicit success indicator.
     fn compare_exchange(&self, current: Self::Value, new: Self::Value) -> Self::Value;
 
     /// Weak version of compare-and-exchange.

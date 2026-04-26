@@ -66,6 +66,13 @@ use super::atomic_value::AtomicValue;
 /// [`crate::AtomicSignedCount`] when overflow or underflow must be rejected
 /// instead of wrapping.
 ///
+/// Floating-point compare-and-set/exchange operations compare raw
+/// [`to_bits`](f32::to_bits) representations, not [`PartialEq`]. This means
+/// distinct bit patterns that compare equal, such as `0.0` and `-0.0`, do not
+/// match for CAS, and NaN payloads must match exactly. Prefer
+/// [`compare_set`](Self::compare_set) or [`compare_set_weak`](Self::compare_set_weak)
+/// when the caller needs an explicit success indicator for `f32` or `f64`.
+///
 /// # Example
 ///
 /// ```rust
@@ -332,6 +339,12 @@ where
     /// value equals `current`, the exchange succeeded; otherwise it is the
     /// actual value that prevented the exchange.
     ///
+    /// For `Atomic<f32>` and `Atomic<f64>`, CAS compares raw IEEE-754 bit
+    /// patterns rather than [`PartialEq`]. A returned floating-point value
+    /// comparing equal to `current` is therefore not always enough to prove
+    /// success; use [`compare_set`](Self::compare_set) for an explicit
+    /// `Ok`/`Err`, or compare [`to_bits`](f32::to_bits) values yourself.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -363,6 +376,12 @@ where
     /// not by itself prove that `new` was stored; use
     /// [`compare_set_weak`](Self::compare_set_weak) when the caller needs an
     /// explicit success indicator.
+    ///
+    /// For `Atomic<f32>` and `Atomic<f64>`, the same caveat applies to raw-bit
+    /// equality: `0.0` and `-0.0` compare equal by [`PartialEq`] but are
+    /// different CAS values. Use [`compare_set_weak`](Self::compare_set_weak)
+    /// or compare [`to_bits`](f32::to_bits) values when distinguishing success
+    /// from failure matters.
     ///
     /// # Example
     ///

@@ -185,6 +185,32 @@ fn test_try_update_retry_paths() {
 }
 
 #[test]
+fn test_f32_compare_exchange_uses_raw_bits() {
+    let atomic = Atomic::<f32>::new(-0.0);
+
+    assert_ne!(0.0f32.to_bits(), (-0.0f32).to_bits());
+    assert!(atomic.compare_set(0.0, 1.0).is_err());
+
+    let prev = atomic.compare_and_exchange(0.0, 1.0);
+    assert_eq!(prev, 0.0);
+    assert_eq!(prev.to_bits(), (-0.0f32).to_bits());
+    assert_eq!(atomic.load().to_bits(), (-0.0f32).to_bits());
+}
+
+#[test]
+fn test_f64_compare_exchange_uses_raw_bits() {
+    let atomic = Atomic::<f64>::new(-0.0);
+
+    assert_ne!(0.0f64.to_bits(), (-0.0f64).to_bits());
+    assert!(atomic.compare_set(0.0, 1.0).is_err());
+
+    let prev = atomic.compare_and_exchange(0.0, 1.0);
+    assert_eq!(prev, 0.0);
+    assert_eq!(prev.to_bits(), (-0.0f64).to_bits());
+    assert_eq!(atomic.load().to_bits(), (-0.0f64).to_bits());
+}
+
+#[test]
 fn test_inner_backends() {
     let flag = Atomic::<bool>::new(false);
     assert!(!flag.inner().load(Ordering::Acquire));
