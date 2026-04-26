@@ -434,21 +434,21 @@ fn main() {
 
 ### `AtomicCount` / `AtomicSignedCount` 的方法
 
-| 方法 | `AtomicCount` | `AtomicSignedCount` | 描述 |
-|-----|-----------------|-----------------------|------|
-| `new(value)` | `usize` | `isize` | 创建实例 |
-| `zero()` | 支持 | 支持 | 创建零值实例 |
-| `get()` | `usize` | `isize` | 读取当前值 |
-| `is_zero()` | 支持 | 支持 | 判断值是否为零 |
-| `is_positive()` | 支持 | 支持 | 判断值是否为正 |
-| `is_negative()` | 不支持 | 支持 | 判断值是否为负 |
-| `inc()` | 支持 | 支持 | 加一，返回新值 |
-| `dec()` | 下溢 panic | 允许负数 | 减一，返回新值 |
-| `add(delta)` | 溢出 panic | 溢出/下溢 panic | 加 delta，返回新值 |
-| `sub(delta)` | 下溢 panic | 溢出/下溢 panic | 减 delta，返回新值 |
-| `try_add(delta)` | 溢出返回 `None` | 溢出/下溢返回 `None` | 检查式加法 |
-| `try_dec()` | 零值返回 `None` | 不支持 | 检查式减一 |
-| `try_sub(delta)` | 下溢返回 `None` | 溢出/下溢返回 `None` | 检查式减法 |
+| 方法 | `AtomicCount` | `AtomicSignedCount` | 内存序 | 描述 |
+|-----|-----------------|-----------------------|--------|------|
+| `new(value)` | `usize` | `isize` | - | 创建实例 |
+| `zero()` | 支持 | 支持 | - | 创建零值实例 |
+| `get()` | `usize` | `isize` | Acquire | 读取当前值 |
+| `is_zero()` | 支持 | 支持 | Acquire | 判断值是否为零 |
+| `is_positive()` | 支持 | 支持 | Acquire | 判断值是否为正 |
+| `is_negative()` | 不支持 | 支持 | Acquire | 判断值是否为负 |
+| `inc()` | 支持 | 支持 | AcqRel/Acquire | 加一，返回新值 |
+| `dec()` | 下溢 panic | 允许负数 | AcqRel/Acquire | 减一，返回新值 |
+| `add(delta)` | 溢出 panic | 溢出/下溢 panic | AcqRel/Acquire | 加 delta，返回新值 |
+| `sub(delta)` | 下溢 panic | 溢出/下溢 panic | AcqRel/Acquire | 减 delta，返回新值 |
+| `try_add(delta)` | 溢出返回 `None` | 溢出/下溢返回 `None` | AcqRel/Acquire | 检查式加法 |
+| `try_dec()` | 零值返回 `None` | 不支持 | AcqRel/Acquire（仅 `AtomicCount`） | 检查式减一 |
+| `try_sub(delta)` | 下溢返回 `None` | 溢出/下溢返回 `None` | AcqRel/Acquire | 检查式减法 |
 
 ### 共享所有权封装的方法
 

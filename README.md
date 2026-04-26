@@ -436,21 +436,21 @@ and underflow, matching Rust atomic integer semantics. Use `AtomicCount` or
 
 ### `AtomicCount` / `AtomicSignedCount` operations
 
-| Method | `AtomicCount` | `AtomicSignedCount` | Description |
-|--------|-----------------|-----------------------|-------------|
-| `new(value)` | `usize` | `isize` | Create a count |
-| `zero()` | Yes | Yes | Create a zero value |
-| `get()` | `usize` | `isize` | Read the current value |
-| `is_zero()` | Yes | Yes | Check whether the value is zero |
-| `is_positive()` | Yes | Yes | Check whether the value is positive |
-| `is_negative()` | No | Yes | Check whether the value is negative |
-| `inc()` | Yes | Yes | Increment by one, return new value |
-| `dec()` | Panic on underflow | Allows negative values | Decrement by one, return new value |
-| `add(delta)` | Panic on overflow | Panic on overflow/underflow | Add delta, return new value |
-| `sub(delta)` | Panic on underflow | Panic on overflow/underflow | Subtract delta, return new value |
-| `try_add(delta)` | `None` on overflow | `None` on overflow/underflow | Checked add |
-| `try_dec()` | `None` at zero | No | Checked decrement |
-| `try_sub(delta)` | `None` on underflow | `None` on overflow/underflow | Checked subtract |
+| Method | `AtomicCount` | `AtomicSignedCount` | Memory Ordering | Description |
+|--------|-----------------|-----------------------|-----------------|-------------|
+| `new(value)` | `usize` | `isize` | - | Create a count |
+| `zero()` | Yes | Yes | - | Create a zero value |
+| `get()` | `usize` | `isize` | Acquire | Read the current value |
+| `is_zero()` | Yes | Yes | Acquire | Check whether the value is zero |
+| `is_positive()` | Yes | Yes | Acquire | Check whether the value is positive |
+| `is_negative()` | No | Yes | Acquire | Check whether the value is negative |
+| `inc()` | Yes | Yes | AcqRel/Acquire | Increment by one, return new value |
+| `dec()` | Panic on underflow | Allows negative values | AcqRel/Acquire | Decrement by one, return new value |
+| `add(delta)` | Panic on overflow | Panic on overflow/underflow | AcqRel/Acquire | Add delta, return new value |
+| `sub(delta)` | Panic on underflow | Panic on overflow/underflow | AcqRel/Acquire | Subtract delta, return new value |
+| `try_add(delta)` | `None` on overflow | `None` on overflow/underflow | AcqRel/Acquire | Checked add |
+| `try_dec()` | `None` at zero | No | AcqRel/Acquire (`AtomicCount` only) | Checked decrement |
+| `try_sub(delta)` | `None` on underflow | `None` on overflow/underflow | AcqRel/Acquire | Checked subtract |
 
 ### Shared-owner wrapper operations
 
