@@ -405,6 +405,9 @@ impl<T> AtomicRef<T> {
     ///
     /// The old reference before the update.
     ///
+    /// The closure may be called more than once when concurrent updates cause
+    /// CAS retries.
+    ///
     /// # Example
     ///
     /// ```rust

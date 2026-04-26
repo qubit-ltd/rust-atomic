@@ -58,7 +58,7 @@ macro_rules! impl_atomic_number {
         ///   coordinate with threshold-based logic.
         ///
         /// For advanced use cases requiring different memory orderings,
-        /// use `inner()` to access the underlying standard library type.
+        /// use `inner()` to access the underlying backend atomic type.
         ///
         /// # Features
         ///
@@ -973,12 +973,11 @@ macro_rules! impl_atomic_number {
                 self.inner.fetch_min(value, Ordering::AcqRel)
             }
 
-            /// Gets a reference to the underlying standard library atomic
-            /// type.
+            /// Gets a reference to the underlying backend atomic type.
             ///
-            /// This allows direct access to the standard library's atomic
-            /// operations for advanced use cases that require fine-grained
-            /// control over memory ordering.
+            /// This allows direct access to the backend atomic operations for
+            /// advanced use cases that require fine-grained control over
+            /// memory ordering.
             ///
             /// # Returns
             ///
